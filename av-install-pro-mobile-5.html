@@ -1,0 +1,2970 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>AV Install Pro</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0f11;--s:#16181c;--s2:#1e2026;--s3:#252830;
+  --b:#2a2d35;--b2:#353840;--b3:#454850;
+  --t:#e8eaf0;--t2:#b0b4c4;--m:#7c8096;--m2:#555870;
+  --a:#4f8ef7;--a2:#3d7de8;--a3:rgba(79,142,247,.12);
+  --g:#34d399;--g2:#2ecc87;--g3:rgba(52,211,153,.12);
+  --am:#fbbf24;--am3:rgba(251,191,36,.12);
+  --r:#f87171;--r3:rgba(248,113,113,.12);
+  --pu:#a78bfa;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --rad:10px;--rad-lg:16px;--rad-xl:20px;
+  --bottom-nav-h:64px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--t);font-size:14px}
+
+/* ── Layout ── */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--s);border-right:1px solid var(--b);display:flex;flex-direction:column;transition:transform .25s ease,box-shadow .25s ease;z-index:200}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{padding:14px 24px;border-bottom:1px solid var(--b);background:var(--s);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.content{flex:1;overflow-y:auto;padding:24px}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+
+/* ── Sidebar ── */
+.sb-logo{padding:18px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px}
+.sb-logo-icon{width:32px;height:32px;background:var(--a);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0}
+.sb-logo-text{font-size:13px;font-weight:600;line-height:1.2}
+.sb-logo-sub{font-size:10px;color:var(--m);letter-spacing:.05em;text-transform:uppercase}
+.sb-nav{flex:1;padding:10px 8px;overflow-y:auto}
+.sb-section{margin-bottom:18px}
+.sb-section-label{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.08em;font-weight:500;padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--m);font-size:13px;transition:all .15s;margin-bottom:2px;position:relative;user-select:none}
+.nav-item:hover{background:var(--s2);color:var(--t)}
+.nav-item.active{background:var(--a3);color:var(--a)}
+.nav-item i{font-size:16px;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--a);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;font-family:var(--mono)}
+.sb-user{padding:12px 14px;border-top:1px solid var(--b);display:flex;align-items:center;gap:10px}
+.user-av{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--a),var(--pu));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.user-name{font-size:12px;font-weight:500}
+.user-role{font-size:10px;color:var(--m)}
+
+/* ── Mobile overlay backdrop ── */
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199;backdrop-filter:blur(2px)}
+
+/* ── Hamburger button ── */
+.btn-hamburger{display:none;background:none;border:none;cursor:pointer;padding:4px;border-radius:8px;color:var(--t);align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.btn-hamburger:hover{background:var(--s2)}
+.btn-hamburger i{font-size:22px}
+
+/* ── Topbar ── */
+.tb-title{font-size:15px;font-weight:600}
+.tb-sub{font-size:12px;color:var(--m);margin-left:4px}
+.tb-sub-mobile{display:none}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:7px 12px;width:200px}
+.search-box input{background:none;border:none;outline:none;color:var(--t);font-size:12px;font-family:var(--font);width:100%}
+.search-box input::placeholder{color:var(--m)}
+.search-box i{color:var(--m);font-size:14px;flex-shrink:0}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:none;font-family:var(--font);transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--a);color:#fff}
+.btn-primary:hover{background:var(--a2)}
+.btn-primary:disabled{background:var(--b);color:var(--m);cursor:not-allowed;opacity:.6}
+.btn-ghost{background:transparent;color:var(--m);border:1px solid var(--b)}
+.btn-ghost:hover{background:var(--s2);color:var(--t)}
+.btn-danger{background:transparent;color:var(--r);border:1px solid rgba(248,113,113,.25)}
+.btn-danger:hover{background:var(--r3)}
+.btn-success{background:var(--g);color:#0e0f11;font-weight:600}
+.btn-success:hover{background:var(--g2)}
+.btn-success:disabled{background:var(--b);color:var(--m);cursor:not-allowed}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-icon{padding:8px;width:36px;height:36px;justify-content:center}
+
+/* ── Cards ── */
+.card{background:var(--s);border:1px solid var(--b);border-radius:var(--rad-lg)}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between}
+.card-head-title{font-size:13px;font-weight:600}
+.card-body{padding:18px}
+
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.badge-draft{background:rgba(124,128,150,.15);color:var(--m)}
+.badge-active{background:var(--a3);color:var(--a)}
+.badge-pending{background:var(--am3);color:var(--am)}
+.badge-done{background:var(--g3);color:var(--g)}
+.badge-error{background:var(--r3);color:var(--r)}
+
+/* ── Stats ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--s);border:1px solid var(--b);border-radius:var(--rad-lg);padding:16px}
+.stat-label{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.stat-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.stat-value{font-size:28px;font-weight:600;line-height:1;margin-bottom:4px}
+.stat-delta{font-size:11px;color:var(--m)}
+.delta-up{color:var(--g)}
+
+/* ── Project cards ── */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.proj-card{background:var(--s);border:1px solid var(--b);border-radius:var(--rad-lg);padding:16px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.proj-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--b));border-radius:2px 2px 0 0}
+.proj-card:hover{border-color:var(--b2);transform:translateY(-1px)}
+.proj-card.selected{border-color:var(--a);box-shadow:0 0 0 1px var(--a)}
+.pc-ref{font-size:10px;color:var(--m);font-family:var(--mono);letter-spacing:.04em}
+.pc-title{font-size:13px;font-weight:600;margin-top:2px;margin-bottom:2px;color:var(--t)}
+.pc-client{font-size:11px;color:var(--m)}
+.pc-meta{display:flex;gap:12px;margin:10px 0;flex-wrap:wrap}
+.pc-meta-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--m)}
+.pc-meta-item i{font-size:12px}
+.progress-bar{height:3px;background:var(--b);border-radius:2px;overflow:hidden;margin:8px 0 6px}
+.progress-fill{height:100%;border-radius:2px;background:var(--a)}
+.progress-label{display:flex;justify-content:space-between;font-size:10px;color:var(--m)}
+.pc-rooms{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.room-pill-sm{padding:2px 7px;background:var(--s2);border:1px solid var(--b);border-radius:4px;font-size:10px;color:var(--m)}
+.pc-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--b)}
+.tech-stack{display:flex}
+.tech-av{width:22px;height:22px;border-radius:6px;border:2px solid var(--s);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;margin-left:-4px}
+.tech-av:first-child{margin-left:0}
+.pc-actions{display:flex;gap:4px}
+.pc-action{width:26px;height:26px;border-radius:6px;border:1px solid var(--b);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--m);transition:all .15s}
+.pc-action:hover{background:var(--s2);color:var(--t)}
+.pc-action i{font-size:13px}
+
+/* ── Filters ── */
+.filters{display:flex;align-items:center;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:5px 12px;border-radius:16px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--b);background:transparent;color:var(--m);transition:all .15s;font-family:var(--font)}
+.filter-btn:hover{border-color:var(--b2);color:var(--t)}
+.filter-btn.active{background:var(--a);border-color:var(--a);color:#fff}
+.filter-sep{margin-left:auto;display:flex;gap:6px}
+
+/* ── Detail panel ── */
+.detail-panel{width:360px;flex-shrink:0;background:var(--s);border-left:1px solid var(--b);display:flex;flex-direction:column;overflow:hidden}
+.dp-header{padding:14px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.dp-title{font-size:13px;font-weight:600}
+.tab-row{display:flex;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--s);overflow-x:auto}
+.tab-row::-webkit-scrollbar{display:none}
+.tab{padding:10px 12px;font-size:11px;font-weight:500;color:var(--m);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all .15s}
+.tab:hover{color:var(--t)}
+.tab.active{color:var(--a);border-bottom-color:var(--a)}
+.dp-body{flex:1;overflow-y:auto;padding:16px}
+.dp-body::-webkit-scrollbar{width:3px}
+.dp-body::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+
+/* ── Form fields ── */
+.field{margin-bottom:14px}
+.field-label{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:5px}
+.field-val{font-size:12px;font-weight:500;color:var(--t)}
+.field-muted{font-size:12px;color:var(--m)}
+.inp{width:100%;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:8px 12px;color:var(--t);font-size:12px;font-family:var(--font);outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--a)}
+.inp::placeholder{color:var(--m)}
+.inp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* ── Checklist ── */
+.check-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b)}
+.check-item:last-child{border-bottom:none}
+.check-box{width:17px;height:17px;border-radius:4px;border:1.5px solid var(--b2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.check-box.checked{background:var(--g);border-color:var(--g);color:#0e0f11}
+.check-box.checked::after{content:'✓';font-size:10px;font-weight:700}
+.check-text{font-size:12px;flex:1;line-height:1.3}
+.check-text.done{text-decoration:line-through;color:var(--m)}
+.check-req{font-size:9px;color:var(--r);font-weight:600;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0}
+
+/* ── Room items ── */
+.room-item{display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--s2);border:1px solid var(--b);border-radius:var(--rad);margin-bottom:6px;cursor:pointer;transition:all .15s}
+.room-item:hover{border-color:var(--b2)}
+.room-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.room-info{flex:1;min-width:0}
+.room-name{font-size:12px;font-weight:500}
+.room-count{font-size:10px;color:var(--m)}
+
+/* ── Photos ── */
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.photo-thumb{aspect-ratio:1;border-radius:6px;background:var(--s2);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--m);font-size:20px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.photo-thumb:hover{border-color:var(--a)}
+.photo-thumb.add{border:1.5px dashed var(--b2)}
+.photo-thumb.add:hover{border-color:var(--a);color:var(--a)}
+
+/* ── Signature canvas ── */
+.sig-canvas-wrap{position:relative;border-radius:10px;overflow:hidden;border:2px dashed var(--b2);background:#fff;cursor:crosshair;transition:border-color .15s}
+.sig-canvas-wrap.active{border-color:var(--a);border-style:solid}
+.sig-canvas-wrap.has-sig{border-style:solid;border-color:var(--b2)}
+.sig-canvas{display:block;width:100%;touch-action:none}
+.sig-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;pointer-events:none;transition:opacity .2s}
+.sig-placeholder i{font-size:26px;color:#c9cdd8}
+.sig-placeholder span{font-size:11px;color:#adb5bd}
+.sig-placeholder.hide{opacity:0}
+.pen-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.color-dot{width:14px;height:14px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0}
+.color-dot.sel{border-color:#fff;transform:scale(1.2)}
+.thick-btn{padding:2px 7px;border-radius:4px;border:1px solid var(--b);background:transparent;color:var(--m);font-size:10px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.thick-btn.active{background:var(--s2);color:var(--t);border-color:var(--b2)}
+.sig-who-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.sig-who-tab{padding:8px;border-radius:8px;border:1px solid var(--b);background:transparent;color:var(--m);font-size:12px;font-weight:500;font-family:var(--font);cursor:pointer;text-align:center;transition:all .15s}
+.sig-who-tab.active{background:var(--a3);border-color:rgba(79,142,247,.4);color:var(--a)}
+.sig-who-tab.done{box-shadow:0 0 0 1px var(--g);color:var(--g)}
+
+/* ── Signature preview ── */
+.sig-preview-box{border:1px solid var(--b);border-radius:8px;overflow:hidden;margin-bottom:10px}
+.sig-preview-label{font-size:9px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;padding:5px 10px;border-bottom:1px solid var(--b);font-weight:500}
+.sig-preview-img{background:#fff;min-height:50px;display:flex;align-items:center;justify-content:center;padding:6px}
+.sig-preview-empty{font-size:10px;color:#adb5bd;font-style:italic}
+
+/* ── Excel import ── */
+.drop-zone{border:2px dashed var(--b2);border-radius:12px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--a);background:rgba(79,142,247,.04)}
+.step-indicator{display:flex;align-items:center;padding:12px 18px;border-bottom:1px solid var(--b);background:var(--s2)}
+.step-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;border:1.5px solid var(--b);color:var(--m);flex-shrink:0;transition:all .25s}
+.step-dot.s-active{background:var(--a);border-color:var(--a);color:#fff}
+.step-dot.s-done{background:var(--g);border-color:var(--g);color:#0e0f11}
+.step-lbl{font-size:11px;color:var(--m);margin:0 6px;white-space:nowrap}
+.step-lbl.s-active{color:var(--t);font-weight:500}
+.step-lbl.s-done{color:var(--g)}
+.step-line{flex:1;height:1px;background:var(--b);margin:0 6px}
+.map-row{display:grid;grid-template-columns:140px 1fr 1fr;align-items:center;padding:9px 14px;border-bottom:1px solid var(--b);gap:8px}
+.map-row:last-child{border-bottom:none}
+.map-select{background:var(--s);border:1px solid var(--b);border-radius:7px;padding:5px 8px;font-size:11px;color:var(--t);font-family:var(--font);outline:none;width:100%;transition:border-color .15s;cursor:pointer}
+.map-select:focus{border-color:var(--a)}
+.map-example{font-size:10px;color:var(--m);font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── Table ── */
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{background:var(--s2);padding:7px 10px;text-align:left;font-size:9px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;font-weight:500;border-bottom:1px solid var(--b);white-space:nowrap}
+.tbl td{padding:8px 10px;border-bottom:0.5px solid var(--b);color:var(--t2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr.err-row{background:var(--r3)}
+.tbl tr:nth-child(even):not(.err-row){background:rgba(255,255,255,.01)}
+.tbl tr:hover{background:var(--s2)}
+.tbl-wrap{border:1px solid var(--b);border-radius:var(--rad);overflow:hidden}
+.tbl-scroll{overflow-x:auto}
+.err-pill{display:inline-block;font-size:9px;background:var(--r3);color:var(--r);padding:1px 5px;border-radius:3px;margin-top:2px}
+
+/* ── PDF preview ── */
+.pdf-a4{background:#fff;border:0.5px solid var(--b);border-radius:4px;color:#111;font-family:var(--font);overflow:hidden;margin-bottom:12px}
+.pdf-cover-header{background:#0d1117;padding:24px 28px 20px}
+.pdf-cover-logo{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.pdf-cover-logo-icon{width:26px;height:26px;background:#4f8ef7;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0}
+.pdf-cover-logo-text{color:#fff;font-size:11px;font-weight:600}
+.pdf-cover-logo-sub{color:#6b7280;font-size:9px;text-transform:uppercase;letter-spacing:.06em}
+.pdf-section{padding:16px 24px;border-top:1px solid #f3f4f6}
+.pdf-sec-head{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.pdf-sec-num{width:18px;height:18px;background:#0d1117;border-radius:3px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700;flex-shrink:0}
+.pdf-sec-title{font-size:10px;font-weight:600;color:#111;text-transform:uppercase;letter-spacing:.06em}
+.pdf-footer{background:#f9fafb;border-top:1px solid #e5e7eb;padding:8px 24px;display:flex;justify-content:space-between;font-size:8px;color:#9ca3af}
+.pdf-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pdf-info-cell{padding:8px 10px;background:#f9fafb;border-radius:4px;border:0.5px solid #e5e7eb}
+.pdf-info-k{font-size:8px;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.pdf-info-v{font-size:10px;color:#111;font-weight:500}
+.pdf-tbl{width:100%;border-collapse:collapse;font-size:9px}
+.pdf-tbl th{text-align:left;padding:5px 7px;background:#f9fafb;color:#6b7280;font-weight:500;font-size:8px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e5e7eb}
+.pdf-tbl td{padding:6px 7px;border-bottom:0.5px solid #f3f4f6;color:#374151}
+.pdf-tbl tr:last-child td{border-bottom:none}
+.pdf-tbl tr:nth-child(even) td{background:#fafafa}
+.pdf-sn{font-family:monospace;font-size:8px;color:#6b7280}
+.pdf-room-tag{display:inline-block;padding:1px 5px;background:#eff6ff;color:#1e40af;border-radius:2px;font-size:8px;font-weight:500}
+.pdf-check-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:0.5px solid #f3f4f6;font-size:9px}
+.pdf-check-row:last-child{border-bottom:none}
+.pdf-ci{width:12px;height:12px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0}
+.pdf-ci-ok{background:#dcfce7;color:#166534}
+.pdf-ci-no{background:#fee2e2;color:#991b1b}
+.pdf-sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pdf-sig-who{font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:5px;font-weight:500}
+.pdf-sig-line{height:44px;border:1px dashed #d1d5db;border-radius:3px;display:flex;align-items:center;padding:6px 8px}
+.pdf-sig-name{font-size:9px;color:#374151;font-weight:500;border-top:0.5px solid #e5e7eb;padding-top:3px;margin-top:3px}
+.pdf-sig-date{font-size:8px;color:#9ca3af;margin-top:1px}
+.pdf-sig-scribble{font-style:italic;color:#4b5563;font-size:11px;font-family:Georgia,serif}
+.pdf-open-item{display:flex;gap:6px;font-size:9px;color:#78350f;padding:3px 0}
+.pdf-open-arr{color:#d97706;font-weight:600;flex-shrink:0}
+
+/* ── Misc ── */
+.section-head{font-size:10px;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section-head::after{content:'';flex:1;height:1px;background:var(--b)}
+.divider{height:1px;background:var(--b);margin:12px 0}
+.notice{background:var(--a3);border:1px solid rgba(79,142,247,.2);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--a)}
+.notice-warn{background:var(--am3);border-color:rgba(251,191,36,.2);color:var(--am)}
+.notice-ok{background:var(--g3);border-color:rgba(52,211,153,.2);color:var(--g)}
+.notice-err{background:var(--r3);border-color:rgba(248,113,113,.2);color:var(--r)}
+.meta-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--b);font-size:11px}
+.meta-row:last-child{border-bottom:none}
+.meta-key{color:var(--m)}
+.meta-val-ok{color:var(--g);font-weight:500}
+.meta-val-warn{color:var(--am)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a3f7a;color:#fff;border-radius:10px;padding:10px 18px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px;opacity:0;transition:all .3s;z-index:999;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.progress-ring{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--m);margin-top:4px}
+.prog-bar-sm{flex:1;height:3px;background:var(--b);border-radius:2px;overflow:hidden}
+.prog-fill-sm{height:100%;background:var(--a);border-radius:2px;transition:width .3s}
+
+
+/* ── Login overlay ── */
+.login-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .3s}
+.login-overlay.hidden{opacity:0;pointer-events:none}
+.login-box{width:360px;background:var(--s);border:1px solid var(--b);border-radius:var(--rad-xl);padding:32px;display:flex;flex-direction:column;gap:20px}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.login-logo-icon{width:40px;height:40px;background:var(--a);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px}
+.login-title{font-size:18px;font-weight:600}
+.login-sub{font-size:12px;color:var(--m)}
+.login-field{display:flex;flex-direction:column;gap:5px}
+.login-field label{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;font-weight:500}
+.login-err{font-size:11px;color:var(--r);background:var(--r3);border:1px solid rgba(248,113,113,.2);border-radius:6px;padding:8px 12px;display:none}
+.login-err.show{display:block}
+.login-toggle{font-size:11px;text-align:center;color:var(--m)}
+.login-toggle a{color:var(--a);cursor:pointer;text-decoration:none}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--g);flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.sync-dot.offline{background:var(--r);animation:none}
+.sync-dot.syncing{background:var(--am)}
+.spinner{width:20px;height:20px;border:2px solid var(--b);border-top-color:var(--a);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{position:fixed;inset:0;background:rgba(14,15,17,.8);display:flex;align-items:center;justify-content:center;z-index:9998;gap:12px;font-size:13px;color:var(--t2);backdrop-filter:blur(4px)}
+.loading-overlay.hidden{display:none}
+.meta-val-ok{color:var(--g);font-weight:500}
+
+/* ══════════════════════════════════════
+   MOBILE RESPONSIVE — MEDIA QUERIES
+   ══════════════════════════════════════ */
+
+/* ── Bottom nav (mobile only) ── */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bottom-nav-h);background:var(--s);border-top:1px solid var(--b);z-index:100;align-items:center;justify-content:space-around;padding:0 8px;safe-area-inset-bottom:env(safe-area-inset-bottom)}
+.bottom-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;border-radius:10px;cursor:pointer;color:var(--m);font-size:10px;font-weight:500;transition:all .15s;flex:1;min-width:0;text-align:center;position:relative;user-select:none}
+.bottom-nav-item i{font-size:20px;line-height:1}
+.bottom-nav-item.active{color:var(--a)}
+.bottom-nav-badge{position:absolute;top:4px;right:calc(50% - 18px);background:var(--a);color:#fff;font-size:9px;font-weight:700;padding:0 4px;border-radius:6px;min-width:14px;text-align:center;line-height:14px;height:14px}
+.mobile-search-btn{display:none;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--m);align-items:center;justify-content:center}
+.mobile-search-btn i{font-size:16px}
+.btn-hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--t);align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.btn-hamburger:hover{background:var(--s2)}
+.btn-hamburger i{font-size:22px}
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199;backdrop-filter:blur(2px)}
+
+@media (max-width: 768px) {
+  /* Signature grid mobile: force 1 col via JS or override container */
+  #sig-content > div[style*="grid-template-columns:1fr 300px"]{grid-template-columns:1fr !important}
+  html,body{overflow:hidden}
+  .app{flex-direction:column;height:100vh}
+  .btn-hamburger{display:inline-flex}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;transform:translateX(-100%);box-shadow:none;width:260px;z-index:200;transition:transform .25s ease,box-shadow .25s ease}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  .sidebar-backdrop.visible{display:block}
+  .main{flex:1;overflow:hidden;padding-bottom:var(--bottom-nav-h)}
+  .topbar{padding:12px 16px;gap:10px}
+  .tb-title{font-size:14px}
+  .tb-sub{display:none}
+  .search-box{display:none}
+  .mobile-search-btn{display:inline-flex}
+  .tb-right{gap:8px}
+  .content{padding:14px}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+  .stat-value{font-size:22px}
+  .proj-grid{grid-template-columns:1fr}
+  .filters{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .filters::-webkit-scrollbar{display:none}
+  .filter-sep{margin-left:0;flex-shrink:0}
+  .detail-panel{position:fixed;inset:0;bottom:var(--bottom-nav-h);width:100%;border-left:none;z-index:150;border-top:1px solid var(--b)}
+  .bottom-nav{display:flex}
+  .step-lbl{display:none}
+  .step-indicator{gap:6px;padding:10px 12px}
+  .map-row{grid-template-columns:1fr;gap:4px;padding:10px 14px}
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .inp-grid{grid-template-columns:1fr}
+  .pdf-info-grid{grid-template-columns:1fr}
+  .pdf-sig-grid{grid-template-columns:1fr;gap:12px}
+  .login-box{width:calc(100vw - 32px);max-width:360px;padding:22px}
+  .card-body{padding:14px}
+  .card-head{padding:12px 14px}
+}
+@media (max-width: 480px) {
+  .stats-grid{gap:8px}
+  .stat-card{padding:12px}
+  .stat-value{font-size:20px}
+  .content{padding:10px}
+  .topbar{padding:10px 12px}
+  .bottom-nav-item{font-size:9px;padding:6px 4px}
+  .bottom-nav-item i{font-size:18px}
+  .tab{padding:8px 10px;font-size:10px}
+}
+@media (min-width: 769px) and (max-width: 1100px) {
+  .sidebar{width:200px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .proj-grid{grid-template-columns:repeat(2,1fr)}
+  .detail-panel{width:300px}
+}
+</style>
+</head>
+<body>
+
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon"><i class="ti ti-wave-square"></i></div>
+      <div><div class="login-title">AV Install Pro</div><div class="login-sub">Aanmelden bij uw account</div></div>
+    </div>
+    <div class="login-err" id="login-err"></div>
+    <div class="login-field"><label>E-mailadres</label><input class="inp" type="email" id="login-email" placeholder="naam@bedrijf.be" autocomplete="email"></div>
+    <div class="login-field"><label>Wachtwoord</label><input class="inp" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="btn btn-primary" style="justify-content:center;padding:11px" onclick="doLogin()" id="login-btn">
+      <i class="ti ti-login"></i> Aanmelden
+    </button>
+    <div class="login-toggle" id="login-toggle-text">Nog geen account? <a onclick="toggleAuthMode()">Registreren</a></div>
+    <div style="font-size:10px;color:var(--m2);text-align:center;padding-top:4px;border-top:1px solid var(--b)">
+      Vul uw Supabase URL &amp; Anon Key in bij <code style="font-family:var(--mono);color:var(--a)">SUPABASE_CONFIG</code>
+    </div>
+  </div>
+</div>
+
+<div class="loading-overlay hidden" id="loading-overlay">
+  <div class="spinner"></div><span id="loading-msg">Bezig...</span>
+</div>
+
+<div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
+<div class="app" id="app-root" style="display:none">
+
+  <!-- ══ SIDEBAR ══ -->
+  <div class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon"><i class="ti ti-wave-square"></i></div>
+      <div>
+        <div class="sb-logo-text">AV Install Pro</div>
+        <div class="sb-logo-sub">Field Tool v2.4</div>
+      </div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-section">
+        <div class="sb-section-label">Navigatie</div>
+        <div class="nav-item active" onclick="showView('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Dashboard <span class="nav-badge">12</span></div>
+        <div class="nav-item" onclick="showView('projects',this)"><i class="ti ti-folder"></i> Projecten</div>
+        <div class="nav-item" onclick="showView('import',this)"><i class="ti ti-table-import"></i> Excel Import</div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-section-label">Rapporten</div>
+        <div class="nav-item" onclick="showView('pdf',this)"><i class="ti ti-file-type-pdf"></i> PDF Export</div>
+        <div class="nav-item" onclick="showView('signature',this)"><i class="ti ti-users"></i> Team</div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-section-label">Beheer</div>
+        <div class="nav-item"><i class="ti ti-users"></i> Team</div>
+        <div class="nav-item"><i class="ti ti-settings"></i> Instellingen</div>
+      </div>
+    </div>
+    <div class="sb-user">
+      <div class="user-av">LV</div>
+      <div style="flex:1;min-width:0">
+        <div class="user-name">Lars Vermeersch</div>
+        <div class="user-role">Senior Technieker</div>
+      </div>
+      <button onclick="doLogout()" title="Afmelden" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;color:var(--m);display:flex;align-items:center"><i class="ti ti-dots-vertical" style="font-size:16px"></i></button>
+    </div>
+  </div>
+
+  <!-- ══ MAIN ══ -->
+  <div class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div id="view-dashboard" class="view-wrap" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="topbar">
+        <button class="btn-hamburger" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
+        <div><div class="tb-title">Dashboard</div></div>
+        <div class="tb-right">
+          <div class="search-box"><i class="ti ti-search"></i><input type="text" placeholder="Zoek project, klant, ref..."></div>
+          <button class="mobile-search-btn" onclick="toggleMobileSearch()"><i class="ti ti-search"></i></button>
+          <button class="btn btn-primary" onclick="openNewProject()"><i class="ti ti-plus"></i> <span class="btn-label">Nieuw project</span></button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:var(--a)"></span>Actief</div><div class="stat-value" style="color:var(--a)">7</div><div class="stat-delta delta-up">↑ 2 deze week</div></div>
+          <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:var(--am)"></span>Handtekening</div><div class="stat-value" style="color:var(--am)">3</div><div class="stat-delta">Wacht op klant</div></div>
+          <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:var(--g)"></span>Afgerond</div><div class="stat-value" style="color:var(--g)">41</div><div class="stat-delta delta-up">↑ 8 deze maand</div></div>
+          <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:var(--m)"></span>Draft</div><div class="stat-value" style="color:var(--m)">2</div><div class="stat-delta">Niet gestart</div></div>
+        </div>
+        <div class="filters">
+          <button class="filter-btn active" onclick="filterProjects('alle',this)">Alle</button>
+          <button class="filter-btn" onclick="filterProjects('active',this)">Actief</button>
+          <button class="filter-btn" onclick="filterProjects('pending',this)">Handtekening</button>
+          <button class="filter-btn" onclick="filterProjects('done',this)">Afgerond</button>
+          <button class="filter-btn" onclick="filterProjects('draft',this)">Draft</button>
+          <div class="filter-sep">
+            <button class="btn btn-ghost btn-sm"><i class="ti ti-sort-ascending"></i> Datum</button>
+          </div>
+        </div>
+        <div class="proj-grid" id="proj-grid"></div>
+      </div>
+    </div>
+
+    <!-- ── PROJECTS DETAIL (with panel) ── -->
+    <div id="view-projects" class="view-wrap" style="display:none;flex:1;overflow:hidden;flex-direction:row">
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+        <div class="topbar">
+          <button class="btn-hamburger" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
+          <div><div class="tb-title">Projecten</div></div>
+          <div class="tb-right">
+            <div class="search-box"><i class="ti ti-search"></i><input type="text" placeholder="Zoek..."></div>
+            <button class="mobile-search-btn" onclick="toggleMobileSearch()"><i class="ti ti-search"></i></button>
+            <button class="btn btn-primary" onclick="openNewProject()"><i class="ti ti-plus"></i> <span class="btn-label">Nieuw</span></button>
+          </div>
+        </div>
+        <div class="content"><div class="proj-grid" id="proj-grid2"></div></div>
+      </div>
+      <div class="detail-panel" id="detail-panel" style="display:none">
+        <div class="dp-header">
+          <div class="dp-title" id="dp-title">Project detail</div>
+          <button style="background:none;border:none;cursor:pointer;color:var(--m)" onclick="closeDetail()"><i class="ti ti-x" style="font-size:16px"></i></button>
+        </div>
+        <div class="tab-row">
+          <div class="tab active" onclick="switchTab('info',this)">Info</div>
+          <div class="tab" onclick="switchTab('rooms',this)">Zalen</div>
+          <div class="tab" onclick="switchTab('checklist',this)">Checklist</div>
+          <div class="tab" onclick="switchTab('photos',this)">Foto's</div>
+          <div class="tab" onclick="switchTab('signature',this)">✍️ Teken</div>
+        </div>
+        <div class="dp-body" id="dp-body"></div>
+      </div>
+    </div>
+
+    <!-- ── EXCEL IMPORT ── -->
+    <div id="view-import" class="view-wrap" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="topbar">
+        <button class="btn-hamburger" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
+        <div><div class="tb-title">Excel Import <span class="tb-sub">— Materiaallijst</span></div></div>
+        <div class="tb-right">
+          <button class="btn btn-ghost btn-sm" onclick="downloadTemplate()"><i class="ti ti-download"></i> <span class="btn-label">Template</span></button>
+          <button class="btn btn-primary btn-sm" id="btn-import-final" onclick="finalImport()" disabled><i class="ti ti-check"></i> <span class="btn-label">Importeer</span></button>
+        </div>
+      </div>
+      <div class="step-indicator" id="import-steps">
+        <div class="step-dot s-active" id="imp-sd1">1</div>
+        <span class="step-lbl s-active" id="imp-sl1">Bestand uploaden</span>
+        <div class="step-line"></div>
+        <div class="step-dot" id="imp-sd2">2</div>
+        <span class="step-lbl" id="imp-sl2">Kolommen koppelen</span>
+        <div class="step-line"></div>
+        <div class="step-dot" id="imp-sd3">3</div>
+        <span class="step-lbl" id="imp-sl3">Valideren & importeren</span>
+      </div>
+      <div class="content" id="import-content">
+        <!-- Filled dynamically -->
+      </div>
+      <div class="content" id="stock-content" style="display:none">
+        <!-- Stock overview -->
+      </div>
+    </div>
+
+    <!-- ── PDF EXPORT ── -->
+    <div id="view-pdf" class="view-wrap" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="topbar">
+        <button class="btn-hamburger" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
+        <div><div class="tb-title">PDF Export <span class="tb-sub">— Opleveringsrapport</span></div></div>
+        <div class="tb-right">
+          <button class="btn btn-ghost btn-sm" id="btn-pdf-preview" onclick="togglePDFPreview()"><i class="ti ti-eye"></i> <span class="btn-label">Voorbeeld</span></button>
+          <button class="btn btn-ghost btn-sm" onclick="sharePDF()"><i class="ti ti-send"></i> <span class="btn-label">Delen</span></button>
+          <button class="btn btn-primary btn-sm" onclick="exportPDF()"><i class="ti ti-file-type-pdf"></i> <span class="btn-label">PDF</span></button>
+        </div>
+      </div>
+      <div class="content" id="pdf-content">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+
+    <!-- ── SIGNATURE ── -->
+    <div id="view-signature" class="view-wrap" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="topbar">
+        <button class="btn-hamburger" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
+        <div><div class="tb-title">Team</div></div>
+        <div class="tb-right">
+          <button class="btn btn-primary btn-sm" onclick="inviteUser()"><i class="ti ti-user-plus"></i> <span class="btn-label">Uitnodigen</span></button>
+        </div>
+      </div>
+      <div class="content" id="sig-content">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ══ BOTTOM NAV (mobile) ══ -->
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="bottom-nav-item active" id="bn-dashboard" onclick="showView('dashboard',null);setBottomNav('bn-dashboard')">
+    <i class="ti ti-layout-dashboard"></i>
+    <span>Dashboard</span>
+    <span class="bottom-nav-badge" id="bn-badge">12</span>
+  </div>
+  <div class="bottom-nav-item" id="bn-projects" onclick="showView('projects',null);setBottomNav('bn-projects')">
+    <i class="ti ti-folder"></i>
+    <span>Projecten</span>
+  </div>
+  <div class="bottom-nav-item" id="bn-import" onclick="showView('import',null);setBottomNav('bn-import')">
+    <i class="ti ti-table-import"></i>
+    <span>Import</span>
+  </div>
+  <div class="bottom-nav-item" id="bn-pdf" onclick="showView('pdf',null);setBottomNav('bn-pdf')">
+    <i class="ti ti-file-type-pdf"></i>
+    <span>PDF</span>
+  </div>
+  <div class="bottom-nav-item" id="bn-signature" onclick="showView('signature',null);setBottomNav('bn-signature')">
+    <i class="ti ti-users"></i>
+    <span>Team</span>
+  </div>
+</nav>
+</div>
+
+<div class="toast" id="toast"><i class="ti ti-circle-check" style="font-size:15px"></i><span id="toast-msg"></span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// ════════════════════════════════════════════════
+//  ⚙️  SUPABASE CONFIGURATIE  ← HIER INVULLEN
+// ════════════════════════════════════════════════
+const SUPABASE_CONFIG = {
+  url: 'https://ztdbqapdtsbedrmmjeac.supabase.co',
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZGJxYXBkdHNiZWRybW1qZWFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0MDE2MTksImV4cCI6MjA5NDk3NzYxOX0.MICI9s73NQoQl8fUSOl7Mj8tEYqVnDyZPSPGX9YyF3w'
+};
+// Initialize Supabase client
+const db = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
+console.log('Supabase client OK:', !!db);
+
+// Direct REST API helper as fallback
+const SUPA_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SUPABASE_CONFIG.key,
+  'Authorization': 'Bearer ' + SUPABASE_CONFIG.key,
+  'Prefer': 'return=minimal'
+};
+
+async function supaFetch(table, options={}) {
+  const { method='GET', filter='', body=null, select='*', order='created_at.desc' } = options;
+  let url = `${SUPABASE_CONFIG.url}/rest/v1/${table}`;
+  if(method==='GET') {
+    url += `?select=${select}`;
+    if(filter) url += '&' + filter;
+    if(order) url += '&order=' + order;
+  } else if(filter) {
+    url += '?' + filter;
+  }
+  const headers = {...SUPA_HEADERS};
+  if(SUPA_TOKEN) headers['Authorization'] = 'Bearer ' + SUPA_TOKEN;
+  const res = await fetch(url, {
+    method,
+    headers,
+    body: (body && method !== 'DELETE') ? JSON.stringify(body) : undefined
+  });
+  if(!res.ok) { const err = await res.text(); throw new Error(err); }
+  if(method==='GET') return await res.json();
+  return true;
+}
+
+let SUPA_TOKEN = null;
+
+// ════════════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════════════
+let currentUser = null, currentProfile = null, isRegisterMode = false, appInitialized = false;
+
+function toggleAuthMode() {
+  isRegisterMode = !isRegisterMode;
+  document.getElementById('login-btn').innerHTML = isRegisterMode
+    ? '<i class="ti ti-user-plus"></i> Registreren'
+    : '<i class="ti ti-login"></i> Aanmelden';
+  document.getElementById('login-toggle-text').innerHTML = isRegisterMode
+    ? 'Al een account? <a onclick="toggleAuthMode()">Aanmelden</a>'
+    : 'Nog geen account? <a onclick="toggleAuthMode()">Registreren</a>';
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if(!email || !pass) { showLoginErr('Vul e-mail en wachtwoord in.'); return; }
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px"></div> Bezig...';
+  let result;
+  if(isRegisterMode) {
+    result = await db.auth.signUp({ email, password:pass, options:{ data:{ naam:email.split('@')[0], initialen:email.substring(0,2).toUpperCase(), rol:'technieker' } } });
+    if(!result.error) { showLoginErr('Bevestig uw e-mail en meld u aan.'); btn.disabled=false; btn.innerHTML='<i class="ti ti-login"></i> Aanmelden'; return; }
+  } else {
+    result = await db.auth.signInWithPassword({ email, password:pass });
+  }
+  if(result.error) {
+    showLoginErr(result.error.message==='Invalid login credentials'?'Verkeerd e-mail of wachtwoord.':result.error.message);
+    btn.disabled=false;
+    btn.innerHTML=isRegisterMode?'<i class="ti ti-user-plus"></i> Registreren':'<i class="ti ti-login"></i> Aanmelden';
+  }
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById('login-err');
+  el.textContent = msg; el.classList.add('show');
+}
+
+// ════════════════════════════════════════
+// GPS / LOCATIE
+// ════════════════════════════════════════
+async function getGPSAddress(targetId) {
+  if(!navigator.geolocation) {
+    toast('GPS niet beschikbaar op dit apparaat');
+    return;
+  }
+  const statusEl = document.getElementById(targetId.replace('address','gps-status'));
+  if(statusEl) { statusEl.style.display='block'; statusEl.textContent='📍 Locatie ophalen...'; statusEl.style.color='var(--a)'; }
+  const inputEl = document.getElementById(targetId);
+  if(inputEl) { inputEl.placeholder='Locatie ophalen...'; }
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      const acc = Math.round(pos.coords.accuracy);
+      if(statusEl) statusEl.textContent = `📍 Nauwkeurigheid: ${acc}m — adres opzoeken...`;
+      try {
+        // Use OpenStreetMap Nominatim (free, no API key)
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`, {
+          headers: {'Accept-Language': 'nl'}
+        });
+        const data = await res.json();
+        if(data && data.address) {
+          const a = data.address;
+          const street = [a.road, a.house_number].filter(Boolean).join(' ');
+          const city = a.city || a.town || a.village || a.municipality || '';
+          const postcode = a.postcode || '';
+          const address = [street, postcode+' '+city].filter(Boolean).join(', ').trim();
+          if(inputEl) inputEl.value = address;
+          if(statusEl) { statusEl.textContent = `✓ Locatie gevonden (${acc}m nauwkeurig)`; statusEl.style.color='var(--g)'; }
+          setTimeout(()=>{ if(statusEl) statusEl.style.display='none'; }, 3000);
+        } else {
+          // Fallback: show coordinates
+          if(inputEl) inputEl.value = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+          if(statusEl) { statusEl.textContent='Adres niet gevonden — coördinaten gebruikt'; statusEl.style.color='var(--am)'; }
+        }
+      } catch(e) {
+        if(inputEl) inputEl.value = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+        if(statusEl) { statusEl.textContent='Adres ophalen mislukt — coördinaten ingevuld'; statusEl.style.color='var(--am)'; }
+      }
+    },
+    (err) => {
+      const msgs = {
+        1: 'Locatietoegang geweigerd — geef toestemming in uw browserinstellingen',
+        2: 'Locatie niet beschikbaar',
+        3: 'Locatie ophalen duurde te lang'
+      };
+      if(statusEl) { statusEl.textContent = msgs[err.code]||'GPS fout'; statusEl.style.color='var(--r)'; }
+      toast(msgs[err.code]||'GPS fout');
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+}
+
+async function doLogout() {
+  appInitialized = false;
+  try { await db.auth.signOut(); } catch(e) { console.warn('signOut error:', e); }
+  sigState = { activeParty:'klant', sigs:{klant:null,technieker:null}, sigNames:{klant:'',technieker:''}, sigFuncties:{klant:'',technieker:''}, paths:[], drawing:false, currentPath:[], penColor:'#1a1a2e', penThick:2 };
+  const overlay = document.getElementById('login-overlay');
+  const appRoot = document.getElementById('app-root');
+  overlay.style.opacity = '';
+  overlay.style.pointerEvents = '';
+  overlay.classList.remove('hidden');
+  appRoot.style.display = 'none';
+  toast('Afgemeld ✓');
+}
+
+async function initAuth() {
+  console.log('initAuth aangeroepen');
+
+  db.auth.onAuthStateChange(async (event, session) => {
+    console.log('Auth state change:', event, !!session);
+    
+    if(event === 'SIGNED_OUT') {
+      appInitialized = false;
+      currentUser = null; currentProfile = null;
+      SUPA_TOKEN = null;
+      document.getElementById('login-overlay').classList.remove('hidden');
+      document.getElementById('app-root').style.display = 'none';
+      return;
+    }
+
+    if(session?.user && !appInitialized) {
+      console.log('Sessie gevonden via onAuthStateChange, token:', !!session.access_token);
+      SUPA_TOKEN = session.access_token;
+      currentUser = session.user;
+      appInitialized = true;
+      document.getElementById('login-overlay').classList.add('hidden');
+      document.getElementById('app-root').style.display = 'flex';
+      try { await loadProfile(); } catch(e) { console.warn('Profiel fout:', e); }
+      try { await initApp(); } catch(e) { console.warn('App fout:', e); }
+    } else if(session?.user && appInitialized) {
+      // Token refresh - just update token
+      SUPA_TOKEN = session.access_token;
+      console.log('Token bijgewerkt');
+    }
+  });
+}
+
+async function loadProfile() {
+  try {
+    const data = await supaFetch('profiles', {filter:`id=eq.${currentUser.id}`, order:'created_at.desc', select:'*'});
+    currentProfile = data?.[0] || null;
+    const el = document.querySelector('.user-name'); if(el) el.textContent = currentProfile?.naam || currentUser.email;
+    const re = document.querySelector('.user-role'); if(re) re.textContent = currentProfile?.rol || 'Technieker';
+    const av = document.querySelector('.user-av');   if(av) av.textContent = currentProfile?.initialen || currentUser.email.substring(0,2).toUpperCase();
+  } catch(e) {
+    console.warn('Profiel laden fout:', e);
+    const el = document.querySelector('.user-name'); if(el) el.textContent = currentUser.email;
+    const av = document.querySelector('.user-av');   if(av) av.textContent = currentUser.email.substring(0,2).toUpperCase();
+  }
+}
+
+// ════════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════════
+let PROJECTS = [];
+let DEVICES_BY_PROJECT = {};
+let CHECKLIST_ITEMS = [];
+let STOCK_DATA = [];
+
+async function loadStock() {
+  try {
+    const data = await supaFetch('stock', {order:'geimporteerd_op.desc', select:'*'});
+    STOCK_DATA = data || [];
+    console.log('Stock geladen:', STOCK_DATA.length);
+    return STOCK_DATA;
+  } catch(e) {
+    console.warn('Stock laden fout:', e);
+    STOCK_DATA = [];
+    return [];
+  }
+}
+
+const PROJECTS_DEMO = [
+  {id:'AV-2025-0847',title:'Ricoh Headquarters — Vergaderzalen',client:'Ricoh Belgium NV',endclient:'Ricoh HQ, Zaventem',address:'Humaniteitslaan 22, 1831 Diegem',contact:'Marc Dubois',phone:'+32 2 123 45 67',email:'m.dubois@ricoh.com',date:'18 jan 2025',technicians:['LV','JD'],status:'active',progress:75,rooms:['Board Room','Conf A','Conf B','Huddle 1','Huddle 2','Tech. ruimte'],devices:24,description:'Volledige AV-renovatie van 6 vergaderzalen.',openpoints:['Firmware update Board Room scherm','Kabelgoten afwerken Conf B'],accent:'var(--a)'},
+  {id:'AV-2025-0831',title:'UGent Auditorium — AV Renovatie',client:'Universiteit Gent',endclient:'UGent Campus Sterre, Gent',address:'Krijgslaan 281, 9000 Gent',contact:'Sofie Declercq',phone:'+32 9 264 40 01',email:'s.declercq@ugent.be',date:'14 jan 2025',technicians:['MK'],status:'pending',progress:100,rooms:['Aud 1','Aud 2','Regie'],devices:18,description:'Renovatie auditorium AV-systeem.',openpoints:[],accent:'var(--am)'},
+  {id:'AV-2025-0819',title:'Sheraton Brussel — Events',client:'Sheraton Grand Hotel',endclient:'Sheraton Brussels Hotel',address:'Place Rogier 3, 1210 Brussel',contact:'Thomas Pieters',phone:'+32 2 224 31 11',email:'t.pieters@sheraton.be',date:'8 jan 2025',technicians:['LV','TP','AN'],status:'done',progress:100,rooms:['Ballroom','Salon A','Salon B','Salon C','Foyer','Regie','Backstage','Bar'],devices:36,description:'Volledige AV-installatie events faciliteiten hotel.',openpoints:[],accent:'var(--g)'},
+  {id:'AV-2025-0856',title:'Proximus Campus — Videowall',client:'Proximus NV',endclient:'Proximus HQ Campus',address:'Bd du Roi Albert II 27, 1030 Brussel',contact:'Julie Maes',phone:'+32 2 202 41 11',email:'j.maes@proximus.be',date:'22 jan 2025',technicians:['JD'],status:'draft',progress:0,rooms:['Lobby','Innovation Hub'],devices:12,description:'LED videowall installatie in lobby en innovation hub.',openpoints:['Materiaal bestelling bevestigen','Toegangsbewijzen aanvragen'],accent:'var(--m)'}
+];
+const CHECKLIST_ITEMS_DEMO = [
+  {id:1,text:'Scherm(en) getest',required:true,checked:true},
+  {id:2,text:'Audio systeem getest',required:true,checked:true},
+  {id:3,text:'Netwerk verbinding OK',required:true,checked:true},
+  {id:4,text:'Touch functionaliteit OK',required:false,checked:true},
+  {id:5,text:'Camera en videoconferencing getest',required:false,checked:true},
+  {id:6,text:'Firmware geüpdatet',required:true,checked:false},
+  {id:7,text:'Bekabeling afgewerkt',required:false,checked:false},
+  {id:8,text:'Klant uitleg gegeven',required:true,checked:true}
+];
+
+function showLoading(msg='Bezig...') { document.getElementById('loading-overlay').classList.remove('hidden'); document.getElementById('loading-msg').textContent=msg; }
+function hideLoading() { document.getElementById('loading-overlay').classList.add('hidden'); }
+
+async function loadProjecten() {
+  showLoading('Projecten laden...');
+  try {
+    const data = await supaFetch('projecten', {order:'created_at.desc'});
+    hideLoading();
+    console.log('Projecten geladen:', data?.length);
+    if(data && data.length >= 0) {
+      PROJECTS = data.map(p=>({...p, date:p.datum, rooms:p.rooms||[], openpoints:p.openpoints||[], technicians:p.technicians||[], accent:p.accent||'var(--a)'}));
+      setSyncDot('ok'); return true;
+    }
+    setSyncDot('offline'); return false;
+  } catch(e) {
+    hideLoading();
+    console.error('loadProjecten fout:', e);
+    setSyncDot('offline'); return false;
+  }
+}
+
+async function loadChecklistVoorProject(projectId) {
+  try {
+    const data = await supaFetch('checklist_items', {filter:`project_id=eq.${projectId}`, order:'volgorde.asc'});
+    CHECKLIST_ITEMS = (!data?.length) ? CHECKLIST_ITEMS_DEMO.map(i=>({...i})) : data.map(d=>({id:d.id,text:d.tekst,required:d.verplicht,checked:d.gecheckt}));
+  } catch(e) {
+    CHECKLIST_ITEMS = CHECKLIST_ITEMS_DEMO.map(i=>({...i}));
+  }
+}
+
+async function loadToestellen(projectId) {
+  try {
+    const data = await supaFetch('toestellen', {filter:`project_id=eq.${projectId}`, order:'created_at.asc'});
+    if(data) DEVICES_BY_PROJECT[projectId] = data.map(d=>({art:d.artikelnummer,name:d.naam,sn:d.serienummer,qty:d.aantal,room:d.locatie,note:d.opmerking}));
+  } catch(e) { console.warn('Toestellen laden fout:', e); }
+}
+
+async function initApp() {
+  await loadProjecten();
+  renderProjectGrid('proj-grid');
+  updateDashboardStats();
+  // Realtime updates
+  db.channel('projecten').on('postgres_changes',{event:'*',schema:'public',table:'projecten'},()=>{
+    loadProjecten().then(()=>{ renderProjectGrid('proj-grid'); renderProjectGrid('proj-grid2'); updateDashboardStats(); setSyncDot('ok'); });
+  }).subscribe();
+}
+
+function setSyncDot(state) {
+  const dot = document.getElementById('sync-dot');
+  if(!dot) return;
+  dot.className = 'sync-dot'+(state==='offline'?' offline':state==='syncing'?' syncing':'');
+  dot.title = {ok:'Verbonden met Supabase',offline:'Offline — demo data',syncing:'Synchroniseren...'}[state]||'';
+}
+
+function updateDashboardStats() {
+  const counts = {active:0,pending:0,done:0,draft:0};
+  PROJECTS.forEach(p=>{ if(counts[p.status]!==undefined) counts[p.status]++; });
+  const vals = document.querySelectorAll('.stat-value');
+  if(vals[0]) vals[0].textContent=counts.active;
+  if(vals[1]) vals[1].textContent=counts.pending;
+  if(vals[2]) vals[2].textContent=counts.done;
+  if(vals[3]) vals[3].textContent=counts.draft;
+  const badge = document.querySelector('.nav-badge');
+  if(badge) badge.textContent=PROJECTS.length;
+  const bnBadge = document.getElementById('bn-badge');
+  if(bnBadge) bnBadge.textContent=PROJECTS.length;
+}
+
+// ════════════════
+// NAVIGATION
+// ════════════════
+let currentView = 'dashboard';
+let suppressHistoryPush = false;
+
+function showView(id, navEl, skipHistory=false) {
+  document.querySelectorAll('.view-wrap').forEach(v=>v.style.display='none');
+  const el = document.getElementById('view-'+id);
+  if(el) el.style.display='flex';
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(navEl) navEl.classList.add('active');
+  if(id==='dashboard') renderProjectGrid('proj-grid');
+  if(id==='projects') renderProjectGrid('proj-grid2');
+  if(id==='import') initImport();
+  if(id==='pdf') initPDF();
+  if(id==='signature') initTeam();
+  // Mobile: close sidebar and sync bottom nav
+  closeSidebar();
+  const bnMap = {dashboard:'bn-dashboard',projects:'bn-projects',import:'bn-import',pdf:'bn-pdf',signature:'bn-signature'};
+  if(bnMap[id]) setBottomNav(bnMap[id]);
+  // Push to browser history
+  if(!skipHistory && id !== currentView) {
+    history.pushState({view: id}, '', '#' + id);
+  }
+  currentView = id;
+}
+
+// Handle browser back button
+window.addEventListener('popstate', (e) => {
+  const view = e.state?.view || 'dashboard';
+  showView(view, null, true);
+  // Close detail panel if going back
+  if(view !== 'projects') {
+    document.getElementById('detail-panel').style.display = 'none';
+  }
+});
+
+// Handle initial hash on load
+window.addEventListener('load', () => {
+  const hash = window.location.hash.replace('#', '');
+  if(hash && ['dashboard','projects','import','pdf','signature'].includes(hash)) {
+    showView(hash, null, true);
+  }
+});
+
+function toast(msg, duration=3000) {
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),duration);
+}
+
+// ════════════════
+// PROJECT GRID
+// ════════════════
+let activeFilter = 'alle';
+function filterProjects(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderProjectGrid('proj-grid');
+}
+
+function renderProjectGrid(gridId) {
+  const grid = document.getElementById(gridId);
+  if(!grid) return;
+  let projs = activeFilter==='alle' ? PROJECTS : PROJECTS.filter(p=>p.status===activeFilter);
+  if(!projs.length) {
+    grid.innerHTML='<div style="padding:40px;text-align:center;color:var(--m);font-size:13px"><i class="ti ti-folder-off" style="font-size:32px;display:block;margin-bottom:8px"></i>Geen projecten gevonden</div>';
+    return;
+  }
+  grid.innerHTML = projs.map(p=>`
+    <div class="proj-card" style="--accent:${p.accent}" onclick="openDetail('${p.id}')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+        <div style="min-width:0">
+          <div class="pc-ref">${p.id}</div>
+          <div class="pc-title">${p.title}</div>
+          <div class="pc-client">${p.client}</div>
+        </div>
+        <span class="badge badge-${p.status}" style="margin-left:8px;flex-shrink:0">${statusLabel(p.status)}</span>
+      </div>
+      <div class="pc-meta">
+        <div class="pc-meta-item"><i class="ti ti-calendar"></i>${p.date||p.datum||''}</div>
+        <div class="pc-meta-item"><i class="ti ti-door"></i>${(p.rooms||[]).length} zalen</div>
+        <div class="pc-meta-item"><i class="ti ti-device-tv"></i>${p.devices||0} toestellen</div>
+      </div>
+      <div class="progress-label"><span>Checklist</span><span>${p.progress||0}%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${p.progress||0}%;background:${(p.progress||0)===100?'var(--g)':'var(--a)'}"></div></div>
+      <div class="pc-rooms">${(p.rooms||[]).slice(0,3).map(r=>`<span class="room-pill-sm">${r}</span>`).join('')}${(p.rooms||[]).length>3?`<span class="room-pill-sm">+${(p.rooms||[]).length-3}</span>`:''}</div>
+      <div class="pc-footer">
+        <div class="tech-stack">${(p.technicians||[]).map((t,i)=>`<div class="tech-av" style="background:${['#4f8ef7','#a78bfa','#34d399','#f87171'][i%4]}">${t}</div>`).join('')}</div>
+        <div class="pc-actions">
+          <button class="pc-action" title="Handtekening" onclick="event.stopPropagation();openSignatureForProject('${p.id}')"><i class="ti ti-signature"></i></button>
+          <button class="pc-action" title="PDF" onclick="event.stopPropagation();openPDFForProject('${p.id}')"><i class="ti ti-file-type-pdf"></i></button>
+          <button class="pc-action" title="Project bewerken" onclick="event.stopPropagation();editProject('${p.id}')"><i class="ti ti-pencil"></i></button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function statusLabel(s){return{draft:'Draft',active:'Actief',pending:'Handtekening',done:'Afgerond'}[s]||s}
+
+// ════════════════
+// DETAIL PANEL
+// ════════════════
+let currentProject = null;
+function openDetail(id) {
+  currentProject = PROJECTS.find(p=>p.id===id);
+  if(!currentProject) return;
+  const panel = document.getElementById('detail-panel');
+  panel.style.display='flex'; panel.style.flexDirection='column';
+  document.getElementById('dp-title').textContent=currentProject.client+' · '+currentProject.id;
+  showView('projects', document.querySelectorAll('.nav-item')[1]);
+  loadChecklistVoorProject(id).then(()=>switchTab('info',document.querySelector('.tab')));
+  loadToestellen(id);
+}
+
+function closeDetail() { document.getElementById('detail-panel').style.display='none'; }
+
+function switchTab(tabId, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const body = document.getElementById('dp-body');
+  if(!currentProject) return;
+  const p = currentProject;
+  if(tabId==='info') {
+    body.innerHTML=`
+      <div class="field"><div class="field-label">Klantnaam</div><div class="field-val">${p.client}</div></div>
+      <div class="field"><div class="field-label">Eindklant</div><div class="field-val">${p.endclient||''}</div></div>
+      <div class="field"><div class="field-label">Adres</div><div class="field-muted">${p.address||''}</div></div>
+      <div class="inp-grid" style="margin-bottom:14px">
+        <div><div class="field-label">Datum</div><div class="field-val">${p.date||p.datum||''}</div></div>
+        <div><div class="field-label">Referentie</div><div class="field-val" style="font-family:var(--mono);font-size:11px">${p.id}</div></div>
+      </div>
+      <div class="field"><div class="field-label">Contactpersoon</div><div class="field-val">${p.contact||''}</div></div>
+      <div class="field"><div class="field-label">Telefoon / E-mail</div><div class="field-muted">${p.phone||''} · ${p.email||''}</div></div>
+      <div class="divider"></div>
+      <div class="field"><div class="field-label">Beschrijving</div><div class="field-muted" style="line-height:1.6">${p.description||''}</div></div>
+      ${(p.openpoints||[]).length?`<div class="field"><div class="field-label">Openstaande punten</div>${(p.openpoints||[]).map(op=>`<div style="font-size:12px;color:var(--am);margin-bottom:4px">→ ${op}</div>`).join('')}</div>`:''}
+      <div class="divider"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" onclick="openSignatureForProject('${p.id}')"><i class="ti ti-signature"></i> Handtekening</button>
+        <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center" onclick="openPDFForProject('${p.id}')"><i class="ti ti-file-type-pdf"></i> PDF</button>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" onclick="editProjectStatus('${p.id}')"><i class="ti ti-refresh"></i> Status</button>
+        <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" onclick="editProject('${p.id}')"><i class="ti ti-pencil"></i> Bewerken</button>
+      </div>`;
+  }
+  if(tabId==='rooms') {
+    const rooms=p.rooms||[]; const colors=['var(--g)','var(--a)','var(--am)','var(--pu)','var(--r)','var(--m)'];
+    const devices = DEVICES_BY_PROJECT[p.id] || [];
+    
+    // Helper to render device list
+    const renderDevices = (devs) => devs.length ? `<div style="width:100%;padding-left:0">
+      ${devs.map(d=>`
+        <div style="padding:6px 8px;border-bottom:0.5px solid var(--b);display:flex;align-items:flex-start;gap:8px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11px;font-weight:500;color:var(--t)">${d.name}</div>
+            ${d.art?`<div style="font-size:10px;color:var(--m);font-family:var(--mono)">${d.art}</div>`:''}
+            ${d.note?`<div style="font-size:10px;color:var(--m2)">${d.note}</div>`:''}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+            ${d.qty>1?`<div style="font-size:10px;color:var(--a);font-weight:600">×${d.qty}</div>`:''}
+            ${d.sn?`<div style="font-size:9px;color:var(--m);font-family:var(--mono)">${d.sn}</div>`:''}
+            <button onclick="deleteDevice('${p.id}','${d.art||''}','${d.sn||''}')" title="Verwijderen"
+                    style="background:none;border:none;cursor:pointer;color:var(--m);padding:3px;border-radius:4px;line-height:1"
+                    onmouseover="this.style.color='var(--r)'" onmouseout="this.style.color='var(--m)'">
+              <i class="ti ti-x" style="font-size:13px"></i>
+            </button>
+          </div>
+        </div>`).join('')}
+    </div>` : `<div style="padding-left:12px;font-size:11px;color:var(--m2);padding-top:4px">Geen materiaal geregistreerd</div>`;
+
+    // Devices without a matching room
+    const unassigned = devices.filter(d => !rooms.includes(d.room));
+    // All unique locations from devices (including non-matching ones)
+    const extraLocs = [...new Set(unassigned.map(d=>d.room).filter(Boolean))];
+
+    let html = '';
+    
+    // Show rooms defined on project
+    if(rooms.length) {
+      html += `<div class="section-head">${rooms.length} Zalen</div>`;
+      html += rooms.map((r,i) => {
+        const roomDevices = devices.filter(d=>d.room===r);
+        return `<div class="room-item" style="flex-direction:column;align-items:flex-start;gap:6px;cursor:default;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:8px;width:100%">
+            <div class="room-icon" style="background:${colors[i%6]}22;color:${colors[i%6]}"><i class="ti ti-door"></i></div>
+            <div class="room-info" style="flex:1">
+              <div class="room-name">${r}</div>
+              <div class="room-count">${roomDevices.length} toestel${roomDevices.length!==1?'s':''}</div>
+            </div>
+          </div>
+          ${renderDevices(roomDevices)}
+        </div>`;
+      }).join('');
+    }
+
+    // Show extra locations from imported devices
+    if(extraLocs.length) {
+      html += `<div class="section-head" style="margin-top:12px">Geïmporteerde locaties</div>`;
+      html += extraLocs.map((loc,i) => {
+        const locDevices = devices.filter(d=>d.room===loc);
+        return `<div class="room-item" style="flex-direction:column;align-items:flex-start;gap:6px;cursor:default;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:8px;width:100%">
+            <div class="room-icon" style="background:var(--pu)22;color:var(--pu)"><i class="ti ti-building"></i></div>
+            <div class="room-info" style="flex:1">
+              <div class="room-name">${loc}</div>
+              <div class="room-count">${locDevices.length} toestel${locDevices.length!==1?'s':''}</div>
+            </div>
+          </div>
+          ${renderDevices(locDevices)}
+        </div>`;
+      }).join('');
+    }
+
+    // Show devices without any location
+    const noLoc = devices.filter(d=>!d.room);
+    if(noLoc.length) {
+      html += `<div class="section-head" style="margin-top:12px">Zonder locatie (${noLoc.length})</div>`;
+      html += `<div class="room-item" style="flex-direction:column;align-items:flex-start;gap:6px;cursor:default">
+        <div style="display:flex;align-items:center;gap:8px;width:100%">
+          <div class="room-icon" style="background:var(--m)22;color:var(--m)"><i class="ti ti-map-pin-off"></i></div>
+          <div class="room-info" style="flex:1"><div class="room-name">Geen locatie</div></div>
+        </div>
+        ${renderDevices(noLoc)}
+      </div>`;
+    }
+
+    if(!devices.length && !rooms.length) {
+      html += `<div style="padding:24px;text-align:center;color:var(--m);font-size:12px"><i class="ti ti-inbox" style="font-size:28px;display:block;margin-bottom:8px"></i>Nog geen zalen of materiaal</div>`;
+    }
+
+    html += `<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;min-width:80px" onclick="addRoomToProject('${p.id}')"><i class="ti ti-plus"></i> Zaal</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;min-width:80px" onclick="addDeviceToRoom('${p.id}')"><i class="ti ti-device-tv"></i> Toestel</button>
+      <button class="btn btn-danger btn-sm" style="flex:1;justify-content:center;min-width:80px" onclick="deleteAllDevices('${p.id}')"><i class="ti ti-trash"></i> Alles wissen</button>
+    </div>`;
+
+    body.innerHTML = html;
+  }
+  if(tabId==='checklist') {
+    const done=CHECKLIST_ITEMS.filter(c=>c.checked).length;
+    body.innerHTML=`<div class="section-head">Checklist</div>`+CHECKLIST_ITEMS.map(item=>`
+      <div class="check-item">
+        <div class="check-box${item.checked?' checked':''}" onclick="toggleCheck('${item.id}',this)"></div>
+        <span class="check-text${item.checked?' done':''}" id="ct-${item.id}">${item.text}</span>
+        ${item.required?`<span class="check-req">Verplicht</span>`:''}
+      </div>`).join('')+`<div style="margin-top:12px" class="notice">${done}/${CHECKLIST_ITEMS.length} items voltooid</div>`;
+  }
+  if(tabId==='photos') {
+    const rooms = p.rooms||[];
+    const photos = PHOTOS_BY_PROJECT[p.id] || {};
+    body.innerHTML = `
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center" onclick="openCameraForRoom('${p.id}',null,true)">
+          <i class="ti ti-camera"></i> Camera
+        </button>
+        <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" onclick="openCameraForRoom('${p.id}',null,false)">
+          <i class="ti ti-photo"></i> Galerij
+        </button>
+      </div>
+      <input type="file" id="photo-upload-main" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(event,currentPhotoRoom)">
+      <input type="file" id="photo-upload-gallery" accept="image/*" style="display:none" onchange="handlePhotoUpload(event,currentPhotoRoom)">
+      ${rooms.length ? rooms.map(r => {
+        const roomPhotos = photos[r] || [];
+        return `<div style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em">${r}</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost btn-sm" onclick="openCameraForRoom('${p.id}','${r}',true)" style="padding:4px 8px;font-size:10px"><i class="ti ti-camera"></i> Camera</button>
+              <button class="btn btn-ghost btn-sm" onclick="openCameraForRoom('${p.id}','${r}',false)" style="padding:4px 8px;font-size:10px"><i class="ti ti-photo"></i> Galerij</button>
+            </div>
+          </div>
+          <div class="photo-grid" id="photos-${r.replace(/[^a-z0-9]/gi,'_')}">
+            ${roomPhotos.map(src=>`<div class="photo-thumb" style="padding:0;overflow:hidden" onclick="viewPhoto('${src}')"><img src="${src}" style="width:100%;height:100%;object-fit:cover"></div>`).join('')}
+            ${roomPhotos.length===0?`<div style="grid-column:1/-1;padding:12px;text-align:center;color:var(--m2);font-size:11px">Nog geen foto's voor deze zaal</div>`:''}
+          </div>
+        </div>`;
+      }).join('') : `<div style="padding:20px;text-align:center;color:var(--m);font-size:12px">Voeg eerst zalen toe aan dit project</div>`}
+    `;
+  }
+  if(tabId==='signature') {
+    const projectSigState = PROJECT_SIGS[p.id] || {
+      sigs:{klant:null,technieker:null},
+      sigNames:{klant:p.contact||'',technieker:currentProfile?.naam||''},
+      sigFuncties:{klant:'',technieker:''},
+      paths:[], drawing:false, currentPath:[], penColor:'#1a1a2e', penThick:2
+    };
+    if(!PROJECT_SIGS[p.id]) PROJECT_SIGS[p.id] = projectSigState;
+    const ps = PROJECT_SIGS[p.id];
+    body.innerHTML = `
+      <div style="margin-bottom:12px">
+        <div class="sig-who-tabs">
+          <button class="sig-who-tab${ps.activeParty==='technieker'?'':' active'}" id="ptab-klant" onclick="switchProjectSig('${p.id}','klant')">👤 Klant</button>
+          <button class="sig-who-tab${ps.activeParty==='technieker'?' active':''}" id="ptab-technieker" onclick="switchProjectSig('${p.id}','technieker')">🔧 Technieker</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div class="field"><div class="field-label">Naam</div><input class="inp" id="psig-naam" value="${ps.sigNames[ps.activeParty||'klant']||''}"></div>
+        <div class="field"><div class="field-label">Functie</div><input class="inp" id="psig-functie" value="${ps.sigFuncties[ps.activeParty||'klant']||''}"></div>
+      </div>
+      <div class="sig-canvas-wrap" id="psig-wrap" style="margin-bottom:10px">
+        <canvas id="psig-canvas" class="sig-canvas" height="160"></canvas>
+        <div class="sig-placeholder" id="psig-placeholder"><i class="ti ti-pencil"></i><span>Teken hier de handtekening</span></div>
+      </div>
+      <div class="pen-toolbar" style="margin-bottom:12px">
+        ${['#1a1a2e','#4f8ef7','#f87171','#34d399'].map(c=>`<div class="color-dot${ps.penColor===c?' sel':''}" style="background:${c}" data-color="${c}" onclick="setPSigColor(this,'${p.id}')"></div>`).join('')}
+        ${[1,2,4].map(v=>`<button class="thick-btn${ps.penThick===v?' active':''}" onclick="setPSigThick(${v},this,'${p.id}')">${v===1?'Fijn':v===2?'Normaal':'Dik'}</button>`).join('')}
+        <button class="btn btn-ghost btn-sm" onclick="clearProjectSig('${p.id}')"><i class="ti ti-eraser"></i> Wissen</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div>
+          <div class="field-label" style="margin-bottom:4px">Klant ${ps.sigs?.klant?'✅':''}</div>
+          <div style="height:44px;background:#fff;border:1px solid var(--b);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+            ${ps.sigs?.klant?`<img src="${ps.sigs.klant}" style="max-height:40px;max-width:100%">`:'<span style="font-size:10px;color:#adb5bd">Niet getekend</span>'}
+          </div>
+        </div>
+        <div>
+          <div class="field-label" style="margin-bottom:4px">Technieker ${ps.sigs?.technieker?'✅':''}</div>
+          <div style="height:44px;background:#fff;border:1px solid var(--b);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+            ${ps.sigs?.technieker?`<img src="${ps.sigs.technieker}" style="max-height:40px;max-width:100%">`:'<span style="font-size:10px;color:#adb5bd">Niet getekend</span>'}
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-success" style="width:100%;justify-content:center" onclick="saveProjectSig('${p.id}')">
+        <i class="ti ti-check"></i> Handtekening bevestigen & opslaan
+      </button>
+    `;
+    initProjectSigCanvas(p.id);
+  }
+}
+
+// Per-project signature state
+let PROJECT_SIGS = {};
+let pSigCanvas = null, pSigCtx = null, pSigWrap = null, pSigProjectId = null;
+
+function initProjectSigCanvas(projectId) {
+  pSigProjectId = projectId;
+  pSigCanvas = document.getElementById('psig-canvas');
+  if(!pSigCanvas) return;
+  pSigWrap = document.getElementById('psig-wrap');
+  pSigCtx = pSigCanvas.getContext('2d');
+  pSigCanvas.width = pSigWrap.offsetWidth || 300;
+  pSigCanvas.height = 160;
+  redrawProjectSig(projectId);
+  pSigCanvas.addEventListener('mousedown', pSigStart);
+  pSigCanvas.addEventListener('mousemove', pSigMove);
+  pSigCanvas.addEventListener('mouseup', pSigEnd);
+  pSigCanvas.addEventListener('mouseleave', pSigEnd);
+  pSigCanvas.addEventListener('touchstart', e=>{e.preventDefault();const t=e.touches[0];pSigStart({clientX:t.clientX,clientY:t.clientY});},{passive:false});
+  pSigCanvas.addEventListener('touchmove', e=>{e.preventDefault();const t=e.touches[0];pSigMove({clientX:t.clientX,clientY:t.clientY});},{passive:false});
+  pSigCanvas.addEventListener('touchend', pSigEnd, {passive:false});
+}
+
+function pSigStart(e) {
+  const ps = PROJECT_SIGS[pSigProjectId]; if(!ps) return;
+  ps.drawing = true;
+  const r = pSigCanvas.getBoundingClientRect();
+  ps.currentPath = [{x:e.clientX-r.left, y:e.clientY-r.top}];
+  document.getElementById('psig-placeholder')?.classList.add('hide');
+  pSigWrap?.classList.add('active');
+}
+function pSigMove(e) {
+  const ps = PROJECT_SIGS[pSigProjectId]; if(!ps?.drawing) return;
+  const r = pSigCanvas.getBoundingClientRect();
+  ps.currentPath.push({x:e.clientX-r.left, y:e.clientY-r.top});
+  redrawProjectSig(pSigProjectId);
+}
+function pSigEnd() {
+  const ps = PROJECT_SIGS[pSigProjectId]; if(!ps?.drawing) return;
+  ps.drawing = false;
+  if(ps.currentPath?.length > 1) {
+    if(!ps.paths) ps.paths = [];
+    ps.paths.push({points:[...ps.currentPath], color:ps.penColor, thick:ps.penThick});
+  }
+  ps.currentPath = [];
+  pSigWrap?.classList.remove('active');
+  pSigWrap?.classList.add('has-sig');
+}
+function redrawProjectSig(projectId) {
+  if(!pSigCtx || !pSigCanvas) return;
+  const ps = PROJECT_SIGS[projectId]; if(!ps) return;
+  pSigCtx.clearRect(0, 0, pSigCanvas.width, pSigCanvas.height);
+  const draw = (pts, color, thick) => {
+    if(pts.length < 2) return;
+    pSigCtx.beginPath(); pSigCtx.strokeStyle=color; pSigCtx.lineWidth=thick;
+    pSigCtx.lineCap='round'; pSigCtx.lineJoin='round';
+    pSigCtx.moveTo(pts[0].x, pts[0].y);
+    pts.slice(1).forEach(p => pSigCtx.lineTo(p.x, p.y));
+    pSigCtx.stroke();
+  };
+  (ps.paths||[]).forEach(p => draw(p.points, p.color, p.thick));
+  if(ps.currentPath?.length > 1) draw(ps.currentPath, ps.penColor, ps.penThick);
+}
+function clearProjectSig(projectId) {
+  const ps = PROJECT_SIGS[projectId]; if(!ps) return;
+  ps.paths = []; ps.currentPath = [];
+  if(pSigCtx && pSigCanvas) pSigCtx.clearRect(0, 0, pSigCanvas.width, pSigCanvas.height);
+  document.getElementById('psig-placeholder')?.classList.remove('hide');
+  pSigWrap?.classList.remove('active','has-sig');
+}
+function setPSigColor(el, projectId) {
+  document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('sel'));
+  el.classList.add('sel');
+  if(PROJECT_SIGS[projectId]) PROJECT_SIGS[projectId].penColor = el.dataset.color;
+}
+function setPSigThick(v, el, projectId) {
+  document.querySelectorAll('.thick-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  if(PROJECT_SIGS[projectId]) PROJECT_SIGS[projectId].penThick = v;
+}
+function switchProjectSig(projectId, party) {
+  if(!PROJECT_SIGS[projectId]) return;
+  PROJECT_SIGS[projectId].activeParty = party;
+  clearProjectSig(projectId);
+  switchTab('signature', document.querySelector('.tab.active'));
+}
+async function saveProjectSig(projectId) {
+  const ps = PROJECT_SIGS[projectId];
+  if(!ps || !pSigCanvas || !ps.paths?.length) { toast('Teken eerst een handtekening'); return; }
+  const naam = document.getElementById('psig-naam')?.value.trim() || '';
+  const functie = document.getElementById('psig-functie')?.value.trim() || '';
+  const party = ps.activeParty || 'klant';
+  ps.sigNames[party] = naam;
+  ps.sigFuncties[party] = functie;
+  if(!ps.sigs) ps.sigs = {};
+  ps.sigs[party] = pSigCanvas.toDataURL('image/png');
+  // Save to Supabase
+  try {
+    await supaFetch('handtekeningen', {method:'POST', body:{
+      project_id: projectId, partij: party, naam, functie,
+      data_url: ps.sigs[party]
+    }});
+    toast(`Handtekening ${party} opgeslagen ✓`);
+  } catch(e) {
+    toast('Handtekening lokaal opgeslagen');
+  }
+  // Switch to other party if not both signed
+  const other = party === 'klant' ? 'technieker' : 'klant';
+  if(!ps.sigs[other]) {
+    ps.activeParty = other;
+    clearProjectSig(projectId);
+  }
+  switchTab('signature', document.querySelector('.tab.active'));
+}
+
+function addDeviceToRoom(projectId) {
+  const p = PROJECTS.find(pr=>pr.id===projectId);
+  if(!p) return;
+  const rooms = p.rooms||[];
+  const modal = document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:5000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)';
+  modal.innerHTML=`
+    <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--rad-xl);width:100%;max-width:420px">
+      <div style="padding:16px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:13px;font-weight:600">Toestel toevoegen</div>
+        <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;cursor:pointer;color:var(--m);font-size:20px">×</button>
+      </div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:10px">
+        <div class="field"><div class="field-label">Productnaam *</div><input class="inp" id="dev-naam" placeholder="Poly Studio X52"></div>
+        <div class="inp-grid">
+          <div class="field"><div class="field-label">Artikelnummer</div><input class="inp" id="dev-art" placeholder="8D8L4AA"></div>
+          <div class="field"><div class="field-label">Aantal</div><input class="inp" id="dev-aantal" type="number" value="1" min="1"></div>
+        </div>
+        <div class="field"><div class="field-label">Serienummer</div><input class="inp" id="dev-sn" placeholder="SN20250118A"></div>
+        <div class="field"><div class="field-label">Zaal / Locatie</div>
+          <select class="inp" id="dev-locatie">
+            ${rooms.map(r=>`<option value="${r}">${r}</option>`).join('')}
+            <option value="">Geen zaal</option>
+          </select>
+        </div>
+        <div class="field"><div class="field-label">Opmerking</div><input class="inp" id="dev-note" placeholder="Optioneel"></div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="this.closest('[style*=fixed]').remove()">Annuleren</button>
+          <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="saveNewDevice('${projectId}',this.closest('[style*=fixed]'))"><i class="ti ti-check"></i> Opslaan</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function saveNewDevice(projectId, modal) {
+  const naam = document.getElementById('dev-naam')?.value.trim();
+  if(!naam) { toast('Vul een productnaam in'); return; }
+  const device = {
+    project_id: projectId,
+    naam,
+    artikelnummer: document.getElementById('dev-art')?.value.trim()||'',
+    serienummer: document.getElementById('dev-sn')?.value.trim()||'',
+    aantal: parseInt(document.getElementById('dev-aantal')?.value)||1,
+    locatie: document.getElementById('dev-locatie')?.value||'',
+    opmerking: document.getElementById('dev-note')?.value.trim()||''
+  };
+  try {
+    await supaFetch('toestellen', {method:'POST', body:[device]});
+    if(!DEVICES_BY_PROJECT[projectId]) DEVICES_BY_PROJECT[projectId]=[];
+    DEVICES_BY_PROJECT[projectId].push({art:device.artikelnummer,name:device.naam,sn:device.serienummer,qty:device.aantal,room:device.locatie,note:device.opmerking});
+    modal?.remove();
+    toast(`${naam} toegevoegd ✓`);
+    switchTab('rooms', document.querySelector('.tab.active'));
+  } catch(e) {
+    toast('Fout: '+e.message);
+  }
+}
+
+async function deleteDevice(projectId, art, sn) {
+  if(!confirm('Toestel verwijderen?')) return;
+  try {
+    // Find the device in local state first to get exact match
+    const devices = DEVICES_BY_PROJECT[projectId] || [];
+    let toDelete;
+    if(sn && sn !== 'nvt' && sn !== '') {
+      toDelete = devices.find(d => d.sn === sn);
+    }
+    if(!toDelete && art) {
+      toDelete = devices.find(d => d.art === art);
+    }
+    // Delete all devices for this project then re-insert without the deleted one
+    const remaining = devices.filter(d => d !== toDelete);
+    // Delete all
+    await supaFetch('toestellen', {method:'DELETE', filter:`project_id=eq.${projectId}`});
+    // Re-insert remaining
+    if(remaining.length > 0) {
+      const rows = remaining.map(d=>({project_id:projectId,artikelnummer:d.art||'',naam:d.name,serienummer:d.sn||'',aantal:d.qty||1,locatie:d.room||'',opmerking:d.note||''}));
+      for(let i=0; i<rows.length; i+=50) {
+        await supaFetch('toestellen', {method:'POST', body:rows.slice(i,i+50)});
+      }
+    }
+    DEVICES_BY_PROJECT[projectId] = remaining;
+    toast('Toestel verwijderd ✓');
+    switchTab('rooms', document.querySelector('.tab.active'));
+  } catch(e) {
+    console.error('deleteDevice fout:', e);
+    toast('Fout: '+e.message);
+  }
+}
+
+async function deleteAllDevices(projectId) {
+  const devices = DEVICES_BY_PROJECT[projectId] || [];
+  if(!devices.length) { toast('Geen toestellen om te verwijderen'); return; }
+  if(!confirm(`Alle ${devices.length} toestellen verwijderen bij dit project?`)) return;
+  try {
+    await supaFetch('toestellen', {method:'DELETE', filter:`project_id=eq.${projectId}`});
+    DEVICES_BY_PROJECT[projectId] = [];
+    const p = PROJECTS.find(pr=>pr.id===projectId);
+    if(p) p.devices = 0;
+    toast('Alle toestellen verwijderd ✓');
+    switchTab('rooms', document.querySelector('.tab.active'));
+  } catch(e) {
+    toast('Fout: '+e.message);
+  }
+}
+
+function addRoomToProject(projectId) {
+  const naam = prompt('Naam van de zaal:');
+  if(!naam?.trim()) return;
+  const p = PROJECTS.find(pr=>pr.id===projectId);
+  if(!p) return;
+  p.rooms = [...(p.rooms||[]), naam.trim()];
+  supaFetch('projecten', {method:'PATCH', filter:`id=eq.${projectId}`, body:{rooms: p.rooms}})
+    .then(()=>toast(`Zaal "${naam.trim()}" toegevoegd ✓`))
+    .catch(()=>toast('Zaal lokaal toegevoegd'));
+  switchTab('rooms', document.querySelector('.tab.active'));
+}
+
+async function editProjectStatus(projectId) {
+  const statuses = ['draft','active','pending','done'];
+  const labels = {draft:'Draft',active:'Actief',pending:'Handtekening',done:'Afgerond'};
+  const p = PROJECTS.find(pr=>pr.id===projectId);
+  if(!p) return;
+  const nieuw = statuses[(statuses.indexOf(p.status)+1)%statuses.length];
+  showLoading('Status bijwerken...');
+  try {
+    await supaFetch('projecten', {method:'PATCH', filter:`id=eq.${projectId}`, body:{status:nieuw}});
+  } catch(e) { hideLoading(); toast('Fout: '+e.message); return; }
+  hideLoading();
+  p.status = nieuw;
+  toast(`Status → ${labels[nieuw]} ✓`);
+  renderProjectGrid('proj-grid'); renderProjectGrid('proj-grid2');
+  if(currentProject?.id===projectId) openDetail(projectId);
+}
+
+function editProject(projectId) {
+  const p = PROJECTS.find(pr=>pr.id===projectId);
+  if(!p) return;
+  document.getElementById('edit-project-modal')?.remove();
+  const modal = document.createElement('div');
+  modal.id = 'edit-project-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:5000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)';
+  modal.innerHTML = `
+    <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--rad-xl);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column">
+      <div style="padding:18px 20px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div style="font-size:14px;font-weight:600">Project bewerken</div>
+        <button onclick="document.getElementById('edit-project-modal').remove()" style="background:none;border:none;cursor:pointer;color:var(--m);font-size:20px;padding:4px">×</button>
+      </div>
+      <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="field"><div class="field-label">Referentie</div><input class="inp" id="ep-id" value="${p.id}" readonly style="opacity:.6;cursor:not-allowed"></div>
+          <div class="field"><div class="field-label">Status</div>
+            <select class="inp" id="ep-status">
+              <option value="draft" ${p.status==='draft'?'selected':''}>Draft</option>
+              <option value="active" ${p.status==='active'?'selected':''}>Actief</option>
+              <option value="pending" ${p.status==='pending'?'selected':''}>Handtekening</option>
+              <option value="done" ${p.status==='done'?'selected':''}>Afgerond</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><div class="field-label">Projectnaam *</div><input class="inp" id="ep-title" value="${p.title}"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="field"><div class="field-label">Klant *</div><input class="inp" id="ep-client" value="${p.client}"></div>
+          <div class="field"><div class="field-label">Eindklant</div><input class="inp" id="ep-endclient" value="${p.endclient||''}"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">Adres</div>
+          <div style="display:flex;gap:6px">
+            <input class="inp" id="ep-address" value="${p.address||''}" style="flex:1">
+            <button type="button" onclick="getGPSAddress('ep-address')" title="Huidige locatie gebruiken"
+                    class="btn btn-ghost btn-sm" style="flex-shrink:0;padding:8px 10px">
+              <i class="ti ti-current-location" style="font-size:16px"></i>
+            </button>
+          </div>
+          <div id="ep-gps-status" style="font-size:10px;color:var(--m);margin-top:4px;display:none"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="field"><div class="field-label">Contactpersoon</div><input class="inp" id="ep-contact" value="${p.contact||''}"></div>
+          <div class="field"><div class="field-label">Datum</div><input class="inp" id="ep-datum" value="${p.date||p.datum||''}"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="field"><div class="field-label">Telefoon</div><input class="inp" id="ep-phone" value="${p.phone||''}"></div>
+          <div class="field"><div class="field-label">E-mail</div><input class="inp" id="ep-email" value="${p.email||''}"></div>
+        </div>
+        <div class="field"><div class="field-label">Beschrijving</div><textarea class="inp" id="ep-desc" rows="2" style="resize:vertical">${p.description||''}</textarea></div>
+        <div class="field"><div class="field-label">Techniekers (kommagescheiden)</div><input class="inp" id="ep-techs" value="${(p.technicians||[]).join(', ')}"></div>
+        <div class="field"><div class="field-label">Zalen (kommagescheiden)</div><input class="inp" id="ep-rooms" value="${(p.rooms||[]).join(', ')}"></div>
+        <div style="display:flex;gap:8px;padding-top:4px">
+          <button class="btn btn-danger" style="justify-content:center" onclick="deleteProject('${p.id}')"><i class="ti ti-trash"></i></button>
+          <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="document.getElementById('edit-project-modal').remove()">Annuleren</button>
+          <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="saveEditProject('${p.id}')"><i class="ti ti-check"></i> Opslaan</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+}
+
+async function saveEditProject(projectId) {
+  const p = PROJECTS.find(pr=>pr.id===projectId);
+  if(!p) return;
+  const title = document.getElementById('ep-title').value.trim();
+  const client = document.getElementById('ep-client').value.trim();
+  if(!title || !client) { toast('Vul naam en klant in'); return; }
+  const rooms = document.getElementById('ep-rooms').value.split(',').map(r=>r.trim()).filter(Boolean);
+  const techs = document.getElementById('ep-techs').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const updates = {
+    title, client,
+    endclient: document.getElementById('ep-endclient').value.trim(),
+    address: document.getElementById('ep-address').value.trim(),
+    contact: document.getElementById('ep-contact').value.trim(),
+    phone: document.getElementById('ep-phone').value.trim(),
+    email: document.getElementById('ep-email').value.trim(),
+    datum: document.getElementById('ep-datum').value.trim(),
+    status: document.getElementById('ep-status').value,
+    description: document.getElementById('ep-desc').value.trim(),
+    technicians: techs,
+    rooms
+  };
+  showLoading('Opslaan...');
+  try {
+    await supaFetch('projecten', {method:'PATCH', filter:`id=eq.${projectId}`, body:updates});
+    Object.assign(p, updates, {date: updates.datum});
+    hideLoading();
+    document.getElementById('edit-project-modal')?.remove();
+    toast('Project opgeslagen ✓');
+    renderProjectGrid('proj-grid'); renderProjectGrid('proj-grid2');
+    if(currentProject?.id===projectId) openDetail(projectId);
+  } catch(e) {
+    hideLoading();
+    toast('Fout: '+e.message);
+  }
+}
+
+async function deleteProject(projectId) {
+  if(!confirm('Project verwijderen? Dit kan niet ongedaan worden gemaakt.')) return;
+  document.getElementById('edit-project-modal')?.remove();
+  showLoading('Verwijderen...');
+  try {
+    await supaFetch('projecten', {method:'DELETE', filter:`id=eq.${projectId}`});
+    PROJECTS = PROJECTS.filter(pr=>pr.id!==projectId);
+    hideLoading();
+    toast('Project verwijderd ✓');
+    renderProjectGrid('proj-grid'); renderProjectGrid('proj-grid2');
+    updateDashboardStats();
+    document.getElementById('detail-panel').style.display='none';
+  } catch(e) {
+    hideLoading();
+    toast('Fout: '+e.message);
+  }
+}
+
+// Photo storage per project per room
+let PHOTOS_BY_PROJECT = {};
+let currentPhotoRoom = null;
+
+function openCameraForRoom(projectId, room, useCamera) {
+  currentPhotoRoom = room;
+  const input = useCamera
+    ? document.getElementById('photo-upload-main')
+    : document.getElementById('photo-upload-gallery');
+  if(!input) return;
+  // Set capture attribute for camera
+  if(useCamera) input.setAttribute('capture','environment');
+  else input.removeAttribute('capture');
+  input.dataset.projectId = projectId;
+  input.click();
+}
+
+function viewPhoto(src) {
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML = `<img src="${src}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px">
+    <button onclick="this.parentElement.remove()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;cursor:pointer;color:#fff;font-size:24px;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center">×</button>`;
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+function handlePhotoUpload(e, room) {
+  const file = e.target.files[0]; if(!file) return;
+  const projectId = e.target.dataset.projectId || currentProject?.id;
+  if(!projectId) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const src = ev.target.result;
+    // Store locally
+    if(!PHOTOS_BY_PROJECT[projectId]) PHOTOS_BY_PROJECT[projectId] = {};
+    const roomKey = room || 'Algemeen';
+    if(!PHOTOS_BY_PROJECT[projectId][roomKey]) PHOTOS_BY_PROJECT[projectId][roomKey] = [];
+    PHOTOS_BY_PROJECT[projectId][roomKey].push(src);
+    // Update grid in UI
+    const gridId = 'photos-' + roomKey.replace(/[^a-z0-9]/gi,'_');
+    const grid = document.getElementById(gridId);
+    if(grid) {
+      // Remove empty message
+      grid.querySelectorAll('div').forEach(d=>d.remove());
+      const div = document.createElement('div');
+      div.className='photo-thumb'; div.style.cssText='padding:0;overflow:hidden';
+      div.onclick = () => viewPhoto(src);
+      const img = document.createElement('img');
+      img.src=src; img.style='width:100%;height:100%;object-fit:cover';
+      div.appendChild(img); grid.appendChild(div);
+    }
+    toast('Foto toegevoegd ✓');
+    e.target.value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function toggleCheck(id, box) {
+  const item = CHECKLIST_ITEMS.find(c=>String(c.id)===String(id));
+  if(!item) return;
+  item.checked = !item.checked;
+  box.classList.toggle('checked',item.checked);
+  const label = document.getElementById('ct-'+id);
+  if(label) label.classList.toggle('done',item.checked);
+  const done = CHECKLIST_ITEMS.filter(c=>c.checked).length;
+  const notice = document.querySelector('.notice');
+  if(notice) notice.textContent=`${done}/${CHECKLIST_ITEMS.length} items voltooid`;
+  // Save to Supabase (UUID IDs only)
+  if(typeof id==='string' && id.includes('-') && id.length>20) {
+    try {
+      await supaFetch('checklist_items', {method:'PATCH', filter:`id=eq.${id}`, body:{gecheckt:item.checked,gecheckt_op:new Date().toISOString()}});
+      if(currentProject) {
+        const progress = Math.round((done/CHECKLIST_ITEMS.length)*100);
+        await supaFetch('projecten', {method:'PATCH', filter:`id=eq.${currentProject.id}`, body:{progress}});
+        const p = PROJECTS.find(pr=>pr.id===currentProject.id); if(p) p.progress=progress;
+      }
+    } catch(e) { console.warn('Checklist opslaan fout:', e); }
+  }
+}
+
+function openNewProject() {
+  // Remove existing modal if any
+  document.getElementById('new-project-modal')?.remove();
+  const modal = document.createElement('div');
+  modal.id = 'new-project-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:5000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)';
+  modal.innerHTML = `
+    <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--rad-xl);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column">
+      <div style="padding:18px 20px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div style="font-size:14px;font-weight:600">Nieuw project aanmaken</div>
+        <button onclick="document.getElementById('new-project-modal').remove()" style="background:none;border:none;cursor:pointer;color:var(--m);font-size:20px;line-height:1;padding:4px">×</button>
+      </div>
+      <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="field"><div class="field-label">Referentie *</div><input class="inp" id="np-id" placeholder="AV-2025-0001" value="AV-2025-${String(Date.now()).slice(-4)}"></div>
+          <div class="field"><div class="field-label">Status</div>
+            <select class="inp" id="np-status">
+              <option value="draft">Draft</option>
+              <option value="active" selected>Actief</option>
+              <option value="pending">Handtekening</option>
+              <option value="done">Afgerond</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><div class="field-label">Projectnaam *</div><input class="inp" id="np-title" placeholder="Ricoh HQ — Vergaderzalen"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="field"><div class="field-label">Klant *</div><input class="inp" id="np-client" placeholder="Ricoh Belgium NV"></div>
+          <div class="field"><div class="field-label">Eindklant</div><input class="inp" id="np-endclient" placeholder="Ricoh HQ, Zaventem"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">Adres</div>
+          <div style="display:flex;gap:6px">
+            <input class="inp" id="np-address" placeholder="Humaniteitslaan 22, 1831 Diegem" style="flex:1">
+            <button type="button" onclick="getGPSAddress('np-address')" title="Huidige locatie gebruiken"
+                    class="btn btn-ghost btn-sm" style="flex-shrink:0;padding:8px 10px">
+              <i class="ti ti-current-location" style="font-size:16px"></i>
+            </button>
+          </div>
+          <div id="np-gps-status" style="font-size:10px;color:var(--m);margin-top:4px;display:none"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="field"><div class="field-label">Contactpersoon</div><input class="inp" id="np-contact" placeholder="Marc Dubois"></div>
+          <div class="field"><div class="field-label">Datum</div><input class="inp" id="np-datum" type="date" value="${new Date().toISOString().split('T')[0]}"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="field"><div class="field-label">Telefoon</div><input class="inp" id="np-phone" placeholder="+32 2 123 45 67"></div>
+          <div class="field"><div class="field-label">E-mail</div><input class="inp" id="np-email" placeholder="contact@bedrijf.be"></div>
+        </div>
+        <div class="field"><div class="field-label">Beschrijving</div><textarea class="inp" id="np-desc" rows="2" placeholder="Korte projectbeschrijving..." style="resize:vertical"></textarea></div>
+        <div class="field">
+          <div class="field-label">Techniekers (kommagescheiden)</div>
+          <input class="inp" id="np-techs" placeholder="LV, JD, MK">
+        </div>
+        <div class="field">
+          <div class="field-label">Zalen (kommagescheiden)</div>
+          <input class="inp" id="np-rooms" placeholder="Board Room, Conf A, Huddle 1">
+        </div>
+        <div style="display:flex;gap:8px;padding-top:4px">
+          <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="document.getElementById('new-project-modal').remove()">Annuleren</button>
+          <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="saveNewProject()"><i class="ti ti-check"></i> Opslaan</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  // Close on backdrop click
+  modal.addEventListener('click', e => { if(e.target === modal) modal.remove(); });
+}
+
+async function saveNewProject() {
+  const id = document.getElementById('np-id').value.trim();
+  const title = document.getElementById('np-title').value.trim();
+  const client = document.getElementById('np-client').value.trim();
+  if(!id || !title || !client) { toast('Vul referentie, naam en klant in'); return; }
+  
+  const rooms = document.getElementById('np-rooms').value.split(',').map(r=>r.trim()).filter(Boolean);
+  const techs = document.getElementById('np-techs').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const datum = document.getElementById('np-datum').value;
+  const datumNL = datum ? new Date(datum).toLocaleDateString('nl-BE',{day:'numeric',month:'short',year:'numeric'}) : '';
+  
+  const project = {
+    id, title, client,
+    endclient: document.getElementById('np-endclient').value.trim(),
+    address: document.getElementById('np-address').value.trim(),
+    contact: document.getElementById('np-contact').value.trim(),
+    phone: document.getElementById('np-phone').value.trim(),
+    email: document.getElementById('np-email').value.trim(),
+    datum: datumNL,
+    status: document.getElementById('np-status').value,
+    progress: 0,
+    rooms,
+    devices: 0,
+    description: document.getElementById('np-desc').value.trim(),
+    openpoints: [],
+    accent: 'var(--a)',
+    technicians: techs,
+    created_by: currentUser?.id
+  };
+
+  showLoading('Project opslaan...');
+  try {
+    await supaFetch('projecten', {method:'POST', body:project});
+    hideLoading();
+    toast('Project aangemaakt ✓');
+    document.getElementById('new-project-modal').remove();
+    // Reload all projects from Supabase to ensure consistency
+    await loadProjecten();
+    renderProjectGrid('proj-grid');
+    renderProjectGrid('proj-grid2');
+    updateDashboardStats();
+  } catch(e) {
+    hideLoading();
+    console.error('Project opslaan fout:', e);
+    // Add locally as fallback
+    PROJECTS.unshift({...project, date: datumNL});
+    renderProjectGrid('proj-grid');
+    renderProjectGrid('proj-grid2');
+    updateDashboardStats();
+    document.getElementById('new-project-modal')?.remove();
+    toast('Project lokaal opgeslagen (geen verbinding)');
+  }
+}
+
+// ════════════════
+// IMPORT (met Supabase)
+// ════════════════
+const IMPORT_COLS=['artikelnummer','productnaam','serienummer','aantal','locatie','merk','kostprijs','opmerking'];
+const IMPORT_LABELS={artikelnummer:'Artikelnummer',productnaam:'Productnaam',serienummer:'Serienummer',aantal:'Aantal',locatie:'Locatie / Zaal',merk:'Merk',kostprijs:'Kostprijs',opmerking:'Opmerking'};
+const IMPORT_REQ=['productnaam'];
+const IMPORT_ALIASES={
+  // Artikelnummer
+  'artikelnummer':'artikelnummer','article':'artikelnummer','art nr':'artikelnummer','sku':'artikelnummer','ref':'artikelnummer','referentie':'artikelnummer',
+  // Productnaam / omschrijving
+  'productnaam':'productnaam','product':'productnaam','description':'productnaam','omschrijving':'productnaam','naam':'productnaam','name':'productnaam',
+  // Serienummer
+  'serienummer':'serienummer','serial':'serienummer','sn':'serienummer','serialnumber':'serienummer','serial nr':'serienummer',
+  // Aantal
+  'aantal':'aantal','qty':'aantal','quantity':'aantal','hoeveelheid':'aantal',
+  // Locatie
+  'locatie':'locatie','zaal':'locatie','room':'locatie','location':'locatie','ruimte':'locatie','locatie/zaal':'locatie',
+  // Merk / leverancier
+  'merk':'merk','brand':'merk','leverancier':'merk','supplier':'merk','fabrikant':'merk','manufacturer':'merk',
+  // Kostprijs
+  'kost/stuk':'kostprijs','kostprijs':'kostprijs','prijs':'kostprijs','price':'kostprijs','cost':'kostprijs','eenheidsprijs':'kostprijs','unit price':'kostprijs',
+  // Opmerking
+  'opmerking':'opmerking','remark':'opmerking','note':'opmerking','opmerkingen':'opmerking','comment':'opmerking',
+  // Stock Excel specifiek
+  'customer':'locatie','tot cost':'kostprijs'
+};
+const DEMO_ROWS=[
+  {'Merk':'HP Poly','Artikelnummer':'8D8L4AA','Productnaam':'Poly Studio X52 + TC10','Serienummer':'8G251991F267FM','Aantal':1,'Locatie/zaal':'Board Room','Kost/stuk':3283.27,'Opmerking':''},
+  {'Merk':'Sony','Artikelnummer':'FW-65BZ40L','Productnaam':'Sony 65" 700 nits','Serienummer':'S0120084099','Aantal':1,'Locatie/zaal':'Conf A','Kost/stuk':890,'Opmerking':''},
+  {'Merk':'Biamp','Artikelnummer':'AMP-450 BP','Productnaam':'Tesira AMP-450BP','Serienummer':'6072980','Aantal':1,'Locatie/zaal':'Technische ruimte','Kost/stuk':554.4,'Opmerking':''}
+];
+
+// Parse the special Stock_VC Excel format
+function parseStockVCFormat(json) {
+  const results = [];
+  let currentCustomer = '';
+  json.forEach(row => {
+    const vals = Object.values(row).map(v => String(v||'').trim());
+    // First non-empty value in col 0 = customer/project name
+    if(vals[0] && vals[0] !== '__EMPTY') currentCustomer = vals[0];
+    const merk = vals[1] || '';
+    const artnr = vals[2] || '';
+    const omschrijving = vals[3] || '';
+    const aantal = parseInt(vals[4]) || 0;
+    const kostprijs = parseFloat(vals[5]) || 0;
+    // Serial numbers can be in columns 7 onwards
+    const serials = vals.slice(7).filter(v => v && v !== '0' && v !== 'more than 1 serial nr when KIT').join(', ');
+    if(omschrijving && omschrijving !== 'more than 1 serial nr when KIT') {
+      results.push({
+        Artikelnummer: artnr,
+        Productnaam: omschrijving,
+        Serienummer: serials,
+        Aantal: aantal || 1,
+        'Locatie/zaal': currentCustomer,
+        Merk: merk,
+        'Kost/stuk': kostprijs,
+        Opmerking: ''
+      });
+    }
+  });
+  return results;
+}
+let importState={step:1,rawHeaders:[],rawRows:[],mapping:{},validated:[]};
+function initImport(){
+  importState={step:1,rawHeaders:[],rawRows:[],mapping:{},validated:[],isStockVC:false};
+  document.getElementById('import-content').style.display='';
+  document.getElementById('stock-content').style.display='none';
+  renderImportStep();
+  // Load stock in background
+  loadStock().then(()=>{
+    if(STOCK_DATA.length > 0) {
+      // Add stock button to drop zone after it renders
+      setTimeout(()=>{
+        const dz = document.getElementById('drop-zone');
+        if(dz && !document.getElementById('stock-btn-top')) {
+          const btn = document.createElement('div');
+          btn.id = 'stock-btn-top';
+          btn.style.cssText = 'margin-top:14px;padding:12px 16px;background:var(--s2);border:1px solid var(--b);border-radius:10px;cursor:pointer;text-align:center';
+          btn.innerHTML = `<div style="font-size:12px;font-weight:600;color:var(--a)">${STOCK_DATA.filter(s=>!s.project_id).length} items in algemene stock</div>
+            <div style="font-size:11px;color:var(--m);margin-top:2px">Klik om te bekijken en te koppelen aan projecten</div>`;
+          btn.onclick = renderStockView;
+          dz.parentElement?.insertBefore(btn, dz.nextSibling);
+        }
+      }, 100);
+    }
+  });
+}
+
+function renderStockSummary() {
+  const unassigned = STOCK_DATA.filter(s=>!s.project_id);
+  const assigned = STOCK_DATA.filter(s=>s.project_id);
+  const ic = document.getElementById('import-content');
+  if(!ic) return;
+  // Add stock summary at top of import step 1
+  const existing = document.getElementById('stock-summary');
+  if(existing) existing.remove();
+  const div = document.createElement('div');
+  div.id = 'stock-summary';
+  div.style.cssText = 'margin-bottom:16px';
+  div.innerHTML = `
+    <div style="background:var(--s2);border:1px solid var(--b);border-radius:var(--rad-lg);padding:14px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:600">Huidige stocklijst</div>
+        <button class="btn btn-primary btn-sm" onclick="renderStockView()"><i class="ti ti-list"></i> Bekijken</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="text-align:center;padding:8px;background:var(--s);border-radius:8px">
+          <div style="font-size:20px;font-weight:600;color:var(--a)">${unassigned.length}</div>
+          <div style="font-size:10px;color:var(--m)">Niet gekoppeld</div>
+        </div>
+        <div style="text-align:center;padding:8px;background:var(--s);border-radius:8px">
+          <div style="font-size:20px;font-weight:600;color:var(--g)">${assigned.length}</div>
+          <div style="font-size:10px;color:var(--m)">Gekoppeld aan project</div>
+        </div>
+      </div>
+    </div>`;
+  ic.insertBefore(div, ic.firstChild);
+}
+
+let selectedStockItems = new Set();
+
+function renderStockView() {
+  const ic = document.getElementById('import-content');
+  if(!ic) return;
+  // Hide step indicator
+  const stepInd = document.getElementById('import-steps');
+  if(stepInd) stepInd.style.display='none';
+  selectedStockItems = new Set();
+  loadStock().then(()=>{
+    const unassigned = STOCK_DATA.filter(s=>!s.project_id);
+    const grouped = {};
+    unassigned.forEach(s=>{ const loc=s.locatie||'Geen locatie'; if(!grouped[loc]) grouped[loc]=[]; grouped[loc].push(s); });
+    ic.innerHTML = `
+    <div style="margin-bottom:10px;display:flex;gap:8px;align-items:center">
+      <button class="btn btn-ghost btn-sm" onclick="backToImport()"><i class="ti ti-arrow-left"></i> Terug</button>
+      <div style="flex:1;font-size:13px;font-weight:600">Algemene stock (${unassigned.length})</div>
+      <button class="btn btn-danger btn-sm" onclick="deleteSelectedStock()" id="btn-del-stock" style="display:none"><i class="ti ti-trash"></i></button>
+      <button class="btn btn-primary btn-sm" id="btn-koppel" onclick="koppelAanProject()" disabled><i class="ti ti-link"></i> Koppel</button>
+    </div>
+    <div style="font-size:11px;color:var(--m);margin-bottom:10px">Selecteer items → koppel aan project of verwijder</div>
+    ${Object.entries(grouped).map(([loc,items])=>`
+      <div style="margin-bottom:16px">
+        <div style="font-size:10px;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+          <i class="ti ti-building" style="font-size:12px"></i>${loc}
+          <span style="font-weight:400">(${items.length})</span>
+          <button onclick="selectAllFromLoc('${loc}')" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--a);font-size:10px;font-family:var(--font)">Alles selecteren</button>
+        </div>
+        ${items.map(s=>`
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+            <div onclick="toggleStockSelect('${s.id}',this.nextElementSibling)" 
+                 style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--b2);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s" class="stock-cb" id="cb-${s.id}"></div>
+            <div onclick="toggleStockSelect('${s.id}',document.getElementById('stock-item-${s.id}'))"
+                 id="stock-item-${s.id}"
+                 style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--b);border-radius:8px;cursor:pointer;transition:all .15s;flex:1">
+              <div style="flex:1;min-width:0">
+                <div style="font-size:12px;font-weight:500;color:var(--t)">${s.naam}</div>
+                <div style="font-size:10px;color:var(--m)">${s.merk?s.merk+' · ':''}${s.artikelnummer||''}</div>
+                ${s.serienummer?`<div style="font-size:10px;color:var(--m);font-family:var(--mono)">${s.serienummer}</div>`:''}
+              </div>
+              <div style="text-align:right;flex-shrink:0">
+                ${s.aantal>1?`<div style="font-size:11px;font-weight:600;color:var(--a)">×${s.aantal}</div>`:''}
+              </div>
+            </div>
+            <button onclick="deleteStockItem('${s.id}')" title="Verwijderen"
+                    style="background:none;border:1px solid var(--b);border-radius:6px;cursor:pointer;color:var(--r);padding:6px 8px;flex-shrink:0;transition:all .15s"
+                    onmouseover="this.style.background='var(--r3)'" onmouseout="this.style.background='none'">
+              <i class="ti ti-trash" style="font-size:14px"></i>
+            </button>
+          </div>`).join('')}
+      </div>`).join('')}
+  `;
+  }); // end loadStock
+}
+
+function backToImport() {
+  const stepInd = document.getElementById('import-steps');
+  if(stepInd) stepInd.style.display='';
+  initImport();
+}
+
+function toggleStockSelect(id, el) {
+  const cb = document.getElementById('cb-'+id);
+  if(selectedStockItems.has(id)) {
+    selectedStockItems.delete(id);
+    if(el) { el.style.borderColor='var(--b)'; el.style.background=''; }
+    if(cb) { cb.style.background=''; cb.style.borderColor='var(--b2)'; cb.textContent=''; }
+  } else {
+    selectedStockItems.add(id);
+    if(el) { el.style.borderColor='var(--a)'; el.style.background='var(--a3)'; }
+    if(cb) { cb.style.background='var(--a)'; cb.style.borderColor='var(--a)'; cb.textContent='✓'; cb.style.color='#fff'; cb.style.fontSize='10px'; }
+  }
+  const btn = document.getElementById('btn-koppel');
+  if(btn) btn.disabled = selectedStockItems.size===0;
+  const delBtn = document.getElementById('btn-del-stock');
+  if(delBtn) delBtn.style.display = selectedStockItems.size>0 ? '' : 'none';
+}
+
+async function deleteStockItem(id) {
+  if(!confirm('Item verwijderen uit stock?')) return;
+  try {
+    await supaFetch('stock', {method:'DELETE', filter:`id=eq.${id}`});
+    STOCK_DATA = STOCK_DATA.filter(s=>s.id!==id);
+    selectedStockItems.delete(id);
+    // Remove from DOM
+    const row = document.getElementById('stock-item-'+id)?.parentElement;
+    if(row) row.remove();
+    toast('Item verwijderd ✓');
+    const btn = document.getElementById('btn-koppel');
+    if(btn) btn.disabled = selectedStockItems.size===0;
+  } catch(e) {
+    toast('Fout: '+e.message);
+  }
+}
+
+async function deleteSelectedStock() {
+  if(!selectedStockItems.size) return;
+  if(!confirm(`${selectedStockItems.size} items verwijderen?`)) return;
+  const ids = [...selectedStockItems];
+  for(const id of ids) {
+    try { await supaFetch('stock', {method:'DELETE', filter:`id=eq.${id}`}); } catch(e) {}
+  }
+  STOCK_DATA = STOCK_DATA.filter(s=>!ids.includes(s.id));
+  selectedStockItems = new Set();
+  toast(`${ids.length} items verwijderd ✓`);
+  renderStockView();
+}
+
+function selectAllFromLoc(loc) {
+  STOCK_DATA.filter(s=>!s.project_id && s.locatie===loc).forEach(s=>{
+    const el = document.getElementById('stock-item-'+s.id);
+    if(el && !selectedStockItems.has(s.id)) toggleStockSelect(s.id, el);
+  });
+}
+
+async function koppelAanProject() {
+  if(!selectedStockItems.size) return;
+  const modal = document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:5000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)';
+  modal.innerHTML=`
+    <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--rad-xl);width:100%;max-width:440px;max-height:85vh;display:flex;flex-direction:column">
+      <div style="padding:16px 18px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+        <div>
+          <div style="font-size:13px;font-weight:600">Koppel aan project</div>
+          <div style="font-size:11px;color:var(--m)">${selectedStockItems.size} item${selectedStockItems.size!==1?'s':''} geselecteerd</div>
+        </div>
+        <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;cursor:pointer;color:var(--m);font-size:20px">×</button>
+      </div>
+      <div style="overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px">
+        ${PROJECTS.map(p=>`
+          <div onclick="doKoppel('${p.id}',this.closest('[style*=fixed]'))"
+               style="padding:12px 14px;border:1px solid var(--b);border-radius:10px;cursor:pointer;transition:all .15s"
+               onmouseover="this.style.borderColor='var(--a)';this.style.background='var(--a3)'"
+               onmouseout="this.style.borderColor='var(--b)';this.style.background=''">
+            <div style="font-size:12px;font-weight:600;color:var(--t)">${p.client}</div>
+            <div style="font-size:11px;color:var(--t2)">${p.title}</div>
+            <div style="font-size:10px;color:var(--m);margin-top:2px">${p.id}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function doKoppel(projectId, modal) {
+  modal?.remove();
+  showLoading('Items koppelen...');
+  const ids = [...selectedStockItems];
+  const items = STOCK_DATA.filter(s=>ids.includes(s.id));
+  // Insert into toestellen
+  const rows = items.map(s=>({
+    project_id: projectId,
+    artikelnummer: s.artikelnummer||'',
+    naam: s.naam,
+    serienummer: s.serienummer||'',
+    aantal: s.aantal||1,
+    locatie: s.locatie||'',
+    opmerking: (s.merk?s.merk+' · ':'')+(s.opmerking||'')
+  }));
+  try {
+    for(let i=0; i<rows.length; i+=50) {
+      await supaFetch('toestellen', {method:'POST', body:rows.slice(i,i+50)});
+    }
+    // Mark as assigned in stock
+    for(const id of ids) {
+      try { await supaFetch('stock', {method:'PATCH', filter:`id=eq.${id}`, body:{project_id:projectId}}); } catch(e) {}
+    }
+    // Update local state
+    ids.forEach(id=>{ const s=STOCK_DATA.find(x=>x.id===id); if(s) s.project_id=projectId; });
+    if(!DEVICES_BY_PROJECT[projectId]) DEVICES_BY_PROJECT[projectId]=[];
+    DEVICES_BY_PROJECT[projectId].push(...rows.map(r=>({art:r.artikelnummer,name:r.naam,sn:r.serienummer,qty:r.aantal,room:r.locatie,note:r.opmerking})));
+    const p = PROJECTS.find(pr=>pr.id===projectId);
+    if(p) p.devices = (p.devices||0) + rows.length;
+    hideLoading();
+    toast(`✓ ${ids.length} items gekoppeld aan ${p?.client||projectId}!`);
+    selectedStockItems = new Set();
+    renderStockView();
+  } catch(e) {
+    hideLoading();
+    toast('Fout: '+e.message);
+    console.error(e);
+  }
+}
+function setImportStep(n){
+  importState.step=n;
+  [1,2,3].forEach(i=>{
+    const dot=document.getElementById('imp-sd'+i); const lbl=document.getElementById('imp-sl'+i);
+    if(dot){dot.className='step-dot'+(i<n?' s-done':i===n?' s-active':'');dot.textContent=i<n?'✓':i;}
+    if(lbl)lbl.className='step-lbl'+(i<n?' s-done':i===n?' s-active':'');
+  });
+  renderImportStep();
+}
+function renderImportStep(){
+  const c=document.getElementById('import-content'); if(!c) return;
+  const s=importState.step;
+  if(s===1){c.innerHTML=`<div class="drop-zone" id="drop-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)" onclick="document.getElementById('file-in').click()"><div style="font-size:40px;margin-bottom:10px">📊</div><div style="font-size:13px;font-weight:500;margin-bottom:4px">Sleep uw Excel of CSV bestand hier</div><div style="font-size:11px;color:var(--m)">of <span style="color:var(--a);text-decoration:underline">klik om te bladeren</span></div><div style="font-size:10px;color:var(--m2);margin-top:8px">.xlsx · .xls · .csv</div><input type="file" id="file-in" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFileSelect(event)"></div><div style="text-align:center;margin-top:14px"><button class="btn btn-ghost" onclick="loadDemoData()"><i class="ti ti-player-play"></i> Demo data laden</button></div>`;}
+  if(s===2){
+    const missing=IMPORT_REQ.filter(col=>!Object.values(importState.mapping).includes(col));
+    c.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div><div style="font-size:13px;font-weight:500">${importState.fileName||'bestand'}</div><div style="font-size:11px;color:var(--m)">${importState.rawRows.length} rijen · ${importState.rawHeaders.length} kolommen</div></div><button class="btn btn-ghost btn-sm" onclick="setImportStep(1)">← Terug</button></div>
+    <div class="tbl-wrap" style="margin-bottom:14px"><div style="display:grid;grid-template-columns:140px 1fr 1fr;padding:8px 14px;border-bottom:1px solid var(--b);background:var(--s2);font-size:9px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;font-weight:500"><span>Kolom in Excel</span><span>Koppelen aan</span><span>Voorbeeld</span></div>${importState.rawHeaders.map(h=>`<div class="map-row"><span style="font-family:var(--mono);font-size:11px;color:var(--t)">${h}</span><select class="map-select" onchange="importState.mapping['${h}']=this.value;renderImportStep()"><option value="">— Negeren —</option>${IMPORT_COLS.map(col=>`<option value="${col}"${importState.mapping[h]===col?' selected':''}>${IMPORT_LABELS[col]}${IMPORT_REQ.includes(col)?' *':''}</option>`).join('')}</select><span class="map-example">${String(importState.rawRows[0]?.[h]??'—').substring(0,25)}</span></div>`).join('')}</div>
+    ${missing.length?`<div class="notice notice-warn" style="margin-bottom:14px">⚠ Verplicht: <strong>${missing.map(k=>IMPORT_LABELS[k]).join(', ')}</strong></div>`:''}
+    <div style="display:flex;justify-content:space-between"><button class="btn btn-ghost" onclick="setImportStep(1)">← Terug</button><button class="btn btn-primary" onclick="doValidate()" ${missing.length?'disabled':''}>Valideren (${importState.rawRows.length} rijen)</button></div>`;
+  }
+  if(s===3){
+    const valid=importState.validated.filter(r=>Object.keys(r._e).length===0);
+    const errCount=importState.validated.length-valid.length;
+    const rooms=[...new Set(valid.map(r=>r.locatie).filter(Boolean))];
+    c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">${[['Totaal','var(--t)',importState.validated.length],['Geldig','var(--g)',valid.length],['Fouten',errCount?'var(--r)':'var(--g)',errCount],['Zalen','var(--a)',rooms.length]].map(([l,col,v])=>`<div class="stat-card" style="padding:12px"><div class="stat-label">${l}</div><div style="font-size:22px;font-weight:600;color:${col}">${v}</div></div>`).join('')}</div>
+    <div class="tbl-wrap" style="margin-bottom:12px"><div class="tbl-scroll"><table class="tbl"><thead><tr><th>#</th><th>Artikelnummer</th><th>Productnaam</th><th>Serienummer</th><th>Aantal</th><th>Locatie</th><th></th></tr></thead><tbody>${importState.validated.map((row,ri)=>{const hasErr=Object.keys(row._e).length>0;return `<tr${hasErr?' class="err-row"':''}><td style="color:var(--m);font-family:var(--mono)">${ri+1}</td><td>${row.artikelnummer||'—'}</td><td>${row.productnaam||'—'}</td><td style="font-family:var(--mono);font-size:10px;color:var(--m)">${row.serienummer||'—'}</td><td style="text-align:center">${row.aantal||0}</td><td>${row.locatie?`<span style="background:var(--a3);color:var(--a);padding:1px 6px;border-radius:4px;font-size:10px">${row.locatie}</span>`:''}</td><td><button style="background:none;border:none;cursor:pointer;color:var(--m);font-size:12px" onclick="deleteImportRow(${ri})">✕</button></td></tr>`;}).join('')}</tbody></table></div></div>
+    <div style="display:flex;justify-content:space-between"><button class="btn btn-ghost" onclick="setImportStep(2)">← Terug</button><button class="btn btn-success" onclick="finalImport()" ${errCount>0||valid.length===0?'disabled':''}>✓ Importeer ${valid.length} items naar stock</button></div>`;
+  }
+}
+function handleDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('drag');const file=e.dataTransfer.files[0];if(file)parseImportFile(file);}
+function handleFileSelect(e){if(e.target.files[0])parseImportFile(e.target.files[0]);}
+function parseImportFile(file){
+  importState.fileName=file.name;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const data=new Uint8Array(ev.target.result);
+    const wb=XLSX.read(data,{type:'array'});
+    // Find the right sheet - prefer 'Project Stock in' for Stock_VC format
+    const sheetName = wb.SheetNames.find(n=>n.toLowerCase().includes('project stock') || n.toLowerCase().includes('stock in')) || wb.SheetNames[0];
+    const ws=wb.Sheets[sheetName];
+    const json=XLSX.utils.sheet_to_json(ws,{defval:'',header:1});
+    if(!json.length) return;
+    // Detect Stock_VC format: first column has customer name, sparse headers
+    const firstRow = json[0];
+    const isStockVC = firstRow && (String(firstRow[0]||'').includes('CUSTOMER') || (json[1] && json[1][0] && !json[0][0]));
+    if(isStockVC) {
+      // Parse with header row detection
+      const headerRow = json.findIndex(r => String(r[0]||'').toUpperCase().includes('CUSTOMER'));
+      const dataRows = headerRow >= 0 ? json.slice(headerRow+2) : json.slice(1);
+      const parsed = parseStockVCFormat(dataRows.map(r => ({0:r[0],1:r[1],2:r[2],3:r[3],4:r[4],5:r[5],6:r[6],7:r[7],8:r[8],9:r[9],10:r[10]})));
+      if(parsed.length) {
+        importState.rawRows = parsed;
+        importState.rawHeaders = Object.keys(parsed[0]);
+        importState.mapping = {};
+        importState.rawHeaders.forEach(h=>{const k=h.toLowerCase().trim().replace(/[\s_\-]+/g,' ');importState.mapping[h]=IMPORT_ALIASES[k]||'';});
+        importState.isStockVC = true;
+        setImportStep(2);
+        return;
+      }
+    }
+    // Standard format
+    const jsonStd=XLSX.utils.sheet_to_json(ws,{defval:''});
+    if(!jsonStd.length) return;
+    importState.rawRows=jsonStd; importState.rawHeaders=Object.keys(jsonStd[0]); importState.mapping={};
+    importState.rawHeaders.forEach(h=>{const k=h.toLowerCase().trim().replace(/[\s_\-]+/g,' ');importState.mapping[h]=IMPORT_ALIASES[k]||'';});
+    importState.isStockVC = false;
+    setImportStep(2);
+  };
+  reader.readAsArrayBuffer(file);
+}
+function loadDemoData(){importState.rawRows=DEMO_ROWS;importState.rawHeaders=Object.keys(DEMO_ROWS[0]);importState.fileName='demo-materiaallijst.xlsx';importState.mapping={};importState.rawHeaders.forEach(h=>{const k=h.toLowerCase().trim().replace(/[\s_\-]+/g,' ');importState.mapping[h]=IMPORT_ALIASES[k]||'';});setImportStep(2);}
+function doValidate(){
+  importState.validated=importState.rawRows.map((r,i)=>{
+    const get=col=>{const h=Object.entries(importState.mapping).find(([,v])=>v===col)?.[0];return h?String(r[h]??'').trim():'';};
+    const errors={};
+    const prod=get('productnaam');
+    const aantalRaw=get('aantal');
+    const n=parseInt(aantalRaw)||1;
+    // Only skip rows that are completely empty
+    if(!prod && !get('artikelnummer')) errors.productnaam='Verplicht';
+    return {
+      artikelnummer: get('artikelnummer'),
+      productnaam: prod||get('artikelnummer'),
+      serienummer: get('serienummer'),
+      aantal: n,
+      locatie: get('locatie'),
+      merk: get('merk'),
+      kostprijs: parseFloat(get('kostprijs'))||0,
+      opmerking: get('opmerking'),
+      _idx: i+1,
+      _e: errors
+    };
+  }).filter(r=>r.productnaam); // remove completely empty rows
+  setImportStep(3);
+}
+function deleteImportRow(ri){importState.validated.splice(ri,1);renderImportStep();}
+async function finalImport(){
+  const valid=importState.validated.filter(r=>Object.keys(r._e).length===0);
+  if(!valid.length){toast('Geen geldige rijen om te importeren');return;}
+  showLoading(`${valid.length} items opslaan in algemene stock...`);
+  const rows = valid.map(r=>({
+    artikelnummer: r.artikelnummer||'',
+    naam: r.productnaam||'',
+    serienummer: r.serienummer||'',
+    aantal: parseInt(r.aantal)||1,
+    locatie: r.locatie||'',
+    merk: r.merk||'',
+    kostprijs: parseFloat(r.kostprijs)||0,
+    opmerking: r.opmerking||'',
+    bestand: importState.fileName||'',
+    project_id: null
+  }));
+  try {
+    // Clear old stock from same file and replace
+    try { await supaFetch('stock', {method:'DELETE', filter:`bestand=eq.${encodeURIComponent(importState.fileName||'')}`}); } catch(e) {}
+    // Insert in chunks
+    for(let i=0; i<rows.length; i+=50) {
+      await supaFetch('stock', {method:'POST', body:rows.slice(i,i+50)});
+      showLoading(`Opslaan... ${Math.min(i+50,rows.length)}/${rows.length}`);
+    }
+    STOCK_DATA = rows;
+    hideLoading();
+    toast(`✓ ${valid.length} items opgeslagen in algemene stock!`);
+    setTimeout(()=>{ showView('import', document.querySelectorAll('.nav-item')[2]); renderStockView(); },1000);
+  } catch(e) {
+    hideLoading();
+    toast('Fout: '+e.message);
+    console.error('Stock import fout:', e);
+  }
+}
+
+// DEAD CODE - kept for reference
+async function finalImport_OLD(){
+  const valid=importState.validated.filter(r=>Object.keys(r._e).length===0);
+  if(!valid.length){toast('Geen geldige rijen om te importeren');return;}
+
+  // Show project selector
+  const modal = document.createElement('div');
+  modal.id = 'import-project-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:5000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)';
+  modal.innerHTML=`
+    <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--rad-xl);width:100%;max-width:460px;max-height:85vh;display:flex;flex-direction:column">
+      <div style="padding:16px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div>
+          <div style="font-size:13px;font-weight:600">Koppel aan klant</div>
+          <div style="font-size:11px;color:var(--m);margin-top:2px">${valid.length} toestellen importeren</div>
+        </div>
+        <button onclick="document.getElementById('import-project-modal').remove()" style="background:none;border:none;cursor:pointer;color:var(--m);font-size:20px;padding:4px">×</button>
+      </div>
+      <div style="padding:12px 14px;border-bottom:1px solid var(--b);flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:7px 12px">
+          <i class="ti ti-search" style="color:var(--m);font-size:14px"></i>
+          <input id="import-search" oninput="filterImportProjects(this.value)" placeholder="Zoek klant..." 
+                 style="background:none;border:none;outline:none;color:var(--t);font-size:12px;font-family:var(--font);width:100%">
+        </div>
+      </div>
+      <div id="import-project-list" style="overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px">
+        ${PROJECTS.map(p=>`
+          <div class="import-proj-item" data-id="${p.id}" data-title="${p.title.toLowerCase()} ${p.client.toLowerCase()}"
+               onclick="doFinalImport('${p.id}')"
+               style="padding:12px 14px;border:1px solid var(--b);border-radius:10px;cursor:pointer;transition:all .15s">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div style="font-size:12px;font-weight:600;color:var(--t)">${p.client}</div>
+                <div style="font-size:11px;color:var(--t2);margin-top:1px">${p.title}</div>
+                <div style="font-size:10px;color:var(--m);margin-top:2px">${p.id} · <span class="badge badge-${p.status}" style="font-size:9px;padding:1px 6px">${statusLabel(p.status)}</span></div>
+              </div>
+              <i class="ti ti-chevron-right" style="color:var(--m);font-size:16px;flex-shrink:0"></i>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  document.getElementById('import-search')?.focus();
+}
+
+function filterImportProjects(q) {
+  const items = document.querySelectorAll('.import-proj-item');
+  items.forEach(item => {
+    item.style.display = item.dataset.title.includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+async function doFinalImport(projectId) {
+  document.getElementById('import-project-modal')?.remove();
+  const valid = importState.validated.filter(r=>Object.keys(r._e).length===0);
+  const p = PROJECTS.find(pr=>pr.id===projectId);
+  showLoading(`${valid.length} toestellen koppelen aan ${p?.client||projectId}...`);
+  const rows = valid.map(r=>({
+    project_id: projectId,
+    artikelnummer: r.artikelnummer||'',
+    naam: r.productnaam||'',
+    serienummer: r.serienummer||'',
+    aantal: r.aantal||1,
+    locatie: r.locatie||'',
+    opmerking: (r.merk ? r.merk+' · ' : '') + (r.opmerking||'')
+  }));
+  try {
+    // Delete existing (ignore error if none exist)
+    try { await supaFetch('toestellen', {method:'DELETE', filter:`project_id=eq.${projectId}`}); } catch(e) {}
+    // Insert in chunks of 50 to avoid payload limits
+    const chunkSize = 50;
+    for(let i=0; i<rows.length; i+=chunkSize) {
+      await supaFetch('toestellen', {method:'POST', body:rows.slice(i, i+chunkSize)});
+      showLoading(`Opslaan... ${Math.min(i+chunkSize,rows.length)}/${rows.length}`);
+    }
+    hideLoading();
+    DEVICES_BY_PROJECT[projectId] = rows.map(r=>({art:r.artikelnummer,name:r.naam,sn:r.serienummer,qty:r.aantal,room:r.locatie,note:r.opmerking}));
+    if(p) p.devices = rows.length;
+    renderProjectGrid('proj-grid'); renderProjectGrid('proj-grid2');
+    toast(`✓ ${valid.length} toestellen gekoppeld aan ${p?.client||projectId}!`);
+    setTimeout(()=>{
+      openDetail(projectId);
+      showView('projects', document.querySelectorAll('.nav-item')[1]);
+    }, 1000);
+  } catch(e) {
+    hideLoading();
+    toast('Fout: '+e.message);
+    console.error('Import fout:', e);
+  }
+}
+function downloadTemplate(){
+  const ws=XLSX.utils.aoa_to_sheet([['Artikelnummer','Productnaam','Serienummer','Aantal','Locatie / Zaal','Opmerking'],['RIC-PJ-7550','Ricoh PJ WXL5670 Projector','SN20250118A',2,'Board Room',''],['SP-ST-500','Speechi Touchscreen 75"','SPT202501B',4,'Conference Room A','']]);
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Materiaallijst'); XLSX.writeFile(wb,'AV-Import-Template.xlsx');
+}
+
+// ════════════════
+// PDF
+// ════════════════
+let selectedPDFProject=null;
+function openPDFForProject(id){selectedPDFProject=id;showView('pdf',document.querySelectorAll('.nav-item')[3]);}
+function togglePDFPreview(){}
+function initPDF(){
+  if(!selectedPDFProject&&PROJECTS.length)selectedPDFProject=PROJECTS[0].id;
+  const c=document.getElementById('pdf-content'); const p=PROJECTS.find(pr=>pr.id===selectedPDFProject)||PROJECTS[0];
+  if(!p||!c)return;
+  c.innerHTML=`<div style="display:flex;gap:20px;align-items:flex-start"><div style="flex:1;display:flex;flex-direction:column;gap:12px"><div class="card"><div class="card-head"><div class="card-head-title">Project selecteren</div></div><div class="card-body" style="display:flex;flex-direction:column;gap:6px">${PROJECTS.map(pr=>`<div class="room-item" onclick="selectedPDFProject='${pr.id}';initPDF()" style="${selectedPDFProject===pr.id?'border-color:var(--a);background:var(--a3)':''}"><div class="room-icon" style="background:${pr.accent}22;color:${pr.accent}"><i class="ti ti-folder"></i></div><div class="room-info"><div class="room-name">${pr.id} — ${pr.client}</div><div class="room-count">${statusLabel(pr.status)} · ${(pr.rooms||[]).length} zalen</div></div></div>`).join('')}</div></div><button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px" onclick="exportPDF()"><i class="ti ti-file-type-pdf"></i> PDF Genereren & Downloaden</button>
+<button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px" onclick="sharePDF()"><i class="ti ti-send"></i> PDF Delen via e-mail</button></div><div style="width:280px;flex-shrink:0"><div style="font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Live voorbeeld</div><div id="pdf-preview-render"></div></div></div>`;
+  renderPDFPreview(p);
+}
+function buildPhotoPDFSection(allPhotos, hasPhotos) {
+  if(!hasPhotos) return '';
+  let html = '<div class="pdf-section"><div class="pdf-sec-head"><div class="pdf-sec-num">5</div><div class="pdf-sec-title">Fotos per zaal</div></div>';
+  allPhotos.forEach(function(entry) {
+    const room = entry[0], imgs = entry[1];
+    if(!imgs || !imgs.length) return;
+    html += '<div style="margin-bottom:10px">';
+    html += '<div style="font-size:8px;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;padding-bottom:3px;border-bottom:0.5px solid #e5e7eb">' + (room||'Algemeen') + '</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">';
+    imgs.forEach(function(src) {
+      html += '<img src="' + src + '" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:3px;border:0.5px solid #e5e7eb">';
+    });
+    html += '</div></div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderPDFPreview(p){
+  const cont=document.getElementById('pdf-preview-render'); if(!cont)return;
+  const devices=DEVICES_BY_PROJECT[p.id]||[];
+  const done=CHECKLIST_ITEMS.filter(c=>c.checked).length;
+  const photos=PHOTOS_BY_PROJECT[p.id]||{};
+  const allPhotos=Object.entries(photos);
+  const hasPhotos=allPhotos.some(function(e){return e[1].length>0;});
+
+  let html = '';
+  html += '<div class="pdf-a4" id="pdf-render-page">';
+  // Cover
+  html += '<div class="pdf-cover-header">';
+  html += '<div class="pdf-cover-logo"><div class="pdf-cover-logo-icon"><i class="ti ti-wave-square"></i></div>';
+  html += '<div><div class="pdf-cover-logo-text">AV Install Pro</div><div class="pdf-cover-logo-sub">Field Service Report</div></div></div>';
+  html += '<div style="color:#fff;font-size:16px;font-weight:600;margin-bottom:4px">'+p.title+'</div>';
+  html += '<div style="color:#d1d5db;font-size:11px">'+p.client+'</div></div>';
+  // Header info bar
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:12px 20px;border-bottom:1px solid #f3f4f6">';
+  html += '<div><div style="font-size:8px;color:#9ca3af;margin-bottom:2px">Referentie</div><div style="font-size:10px;font-weight:600;font-family:monospace">'+p.id+'</div></div>';
+  html += '<div><div style="font-size:8px;color:#9ca3af;margin-bottom:2px">Datum</div><div style="font-size:10px;font-weight:600">'+(p.date||p.datum||'')+'</div></div>';
+  html += '<div><div style="font-size:8px;color:#9ca3af;margin-bottom:2px">Status</div><div style="font-size:9px;background:#dcfce7;color:#166534;padding:2px 7px;border-radius:10px;display:inline-block;font-weight:600">'+statusLabel(p.status)+'</div></div>';
+  html += '</div>';
+  // Section 1: Project info
+  html += '<div class="pdf-section"><div class="pdf-sec-head"><div class="pdf-sec-num">1</div><div class="pdf-sec-title">Projectinformatie</div></div>';
+  html += '<div class="pdf-info-grid">';
+  html += '<div class="pdf-info-cell"><div class="pdf-info-k">Klant</div><div class="pdf-info-v">'+p.client+'</div></div>';
+  html += '<div class="pdf-info-cell"><div class="pdf-info-k">Contact</div><div class="pdf-info-v">'+(p.contact||'')+'</div></div>';
+  html += '<div class="pdf-info-cell"><div class="pdf-info-k">Adres</div><div class="pdf-info-v" style="font-size:9px">'+(p.address||'')+'</div></div>';
+  html += '<div class="pdf-info-cell"><div class="pdf-info-k">Technieker(s)</div><div class="pdf-info-v">'+((p.technicians||[]).join(', '))+'</div></div>';
+  html += '</div></div>';
+  // Section 2: Materials
+  let secNum = 2;
+  if(devices.length) {
+    html += '<div class="pdf-section"><div class="pdf-sec-head"><div class="pdf-sec-num">'+secNum+'</div><div class="pdf-sec-title">Materialen</div></div>';
+    html += '<table class="pdf-tbl"><thead><tr><th>Art.nr</th><th>Productnaam</th><th>SN</th><th>Aant.</th><th>Locatie</th></tr></thead><tbody>';
+    devices.forEach(function(d){
+      html += '<tr><td><span class="pdf-sn">'+(d.art||'')+'</span></td><td>'+(d.name||'')+'</td>';
+      html += '<td><span class="pdf-sn">'+(d.sn||'&mdash;')+'</span></td>';
+      html += '<td style="text-align:center">'+(d.qty||1)+'</td>';
+      html += '<td><span class="pdf-room-tag">'+(d.room||'')+'</span></td></tr>';
+    });
+    html += '</tbody></table></div>';
+    secNum++;
+  }
+  // Section 3: Checklist
+  html += '<div class="pdf-section"><div class="pdf-sec-head"><div class="pdf-sec-num">'+secNum+'</div><div class="pdf-sec-title">Checklist</div></div>';
+  CHECKLIST_ITEMS.forEach(function(item){
+    html += '<div class="pdf-check-row">';
+    html += '<div class="pdf-ci '+(item.checked?'pdf-ci-ok':'pdf-ci-no')+'">'+(item.checked?'&#10003;':'&#10007;')+'</div>';
+    html += '<span style="flex:1;color:#374151">'+item.text+'</span></div>';
+  });
+  html += '<div style="margin-top:8px;padding:6px 8px;background:#eff6ff;border-radius:4px;font-size:9px;color:#1e40af">'+done+'/'+CHECKLIST_ITEMS.length+' items voltooid</div></div>';
+  secNum++;
+  // Section 4: Open points
+  if((p.openpoints||[]).length){
+    html += '<div class="pdf-section"><div class="pdf-sec-head"><div class="pdf-sec-num">'+secNum+'</div><div class="pdf-sec-title">Openstaande punten</div></div>';
+    html += '<div style="background:#fffbeb;border:0.5px solid #fde68a;border-radius:4px;padding:8px 10px">';
+    p.openpoints.forEach(function(op){ html += '<div class="pdf-open-item"><span class="pdf-open-arr">&rarr;</span><span>'+op+'</span></div>'; });
+    html += '</div></div>';
+    secNum++;
+  }
+  // Section 5: Photos
+  if(hasPhotos){
+    html += '<div class="pdf-section"><div class="pdf-sec-head"><div class="pdf-sec-num">'+secNum+'</div><div class="pdf-sec-title">Fotos per zaal</div></div>';
+    allPhotos.forEach(function(entry){
+      const room=entry[0], imgs=entry[1];
+      if(!imgs||!imgs.length) return;
+      html += '<div style="margin-bottom:10px">';
+      html += '<div style="font-size:8px;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;border-bottom:0.5px solid #e5e7eb;padding-bottom:3px">'+(room||'Algemeen')+'</div>';
+      html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">';
+      imgs.forEach(function(src){ html += '<img src="'+src+'" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:3px;border:0.5px solid #e5e7eb">'; });
+      html += '</div></div>';
+    });
+    html += '</div>';
+    secNum++;
+  }
+  // Section: Signatures
+  const sigKlant = (PROJECT_SIGS[p.id]&&PROJECT_SIGS[p.id].sigs&&PROJECT_SIGS[p.id].sigs.klant)||sigState.sigs.klant;
+  const sigTech = (PROJECT_SIGS[p.id]&&PROJECT_SIGS[p.id].sigs&&PROJECT_SIGS[p.id].sigs.technieker)||sigState.sigs.technieker;
+  const nameKlant = (PROJECT_SIGS[p.id]&&PROJECT_SIGS[p.id].sigNames&&PROJECT_SIGS[p.id].sigNames.klant)||sigState.sigNames.klant||p.contact||'';
+  const nameTech = (PROJECT_SIGS[p.id]&&PROJECT_SIGS[p.id].sigNames&&PROJECT_SIGS[p.id].sigNames.technieker)||sigState.sigNames.technieker||(currentProfile&&currentProfile.naam)||'';
+  html += '<div class="pdf-section"><div class="pdf-sec-head"><div class="pdf-sec-num">'+secNum+'</div><div class="pdf-sec-title">Handtekeningen</div></div>';
+  html += '<div class="pdf-sig-grid">';
+  html += '<div><div class="pdf-sig-who">Klant</div><div class="pdf-sig-line">';
+  if(sigKlant) html += '<img src="'+sigKlant+'" style="max-height:32px;max-width:100%">';
+  html += '</div><div class="pdf-sig-name">'+nameKlant+'</div></div>';
+  html += '<div><div class="pdf-sig-who">Technieker</div><div class="pdf-sig-line">';
+  if(sigTech) html += '<img src="'+sigTech+'" style="max-height:32px;max-width:100%">';
+  html += '</div><div class="pdf-sig-name">'+nameTech+'</div></div>';
+  html += '</div></div>';
+  // Footer
+  html += '<div class="pdf-footer"><span>AV Install Pro &middot; '+p.id+' &middot; Vertrouwelijk</span><span>1 / 1</span></div>';
+  html += '</div>';
+  cont.innerHTML = html;
+}
+// Fix signature section number after PDF render
+function fixPDFSigNum(hasPhotos) {
+  const el = document.getElementById('pdf-sig-num');
+  if(el) el.textContent = hasPhotos ? '6' : '5';
+}
+
+async function exportPDF(){
+  const el=document.getElementById('pdf-render-page');
+  if(!el){toast('Eerst een project selecteren');return;}
+  toast('PDF wordt gegenereerd...');
+  try{
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const canvas=await html2canvas(el,{scale:2,useCORS:true,backgroundColor:'#ffffff'});
+    const imgData=canvas.toDataURL('image/jpeg',0.95);
+    const w=pdf.internal.pageSize.getWidth(); const h=pdf.internal.pageSize.getHeight();
+    pdf.addImage(imgData,'JPEG',0,0,w,h);
+    const p=PROJECTS.find(pr=>pr.id===selectedPDFProject)||PROJECTS[0];
+    pdf.save(`AV-Rapport-${p.id}.pdf`);
+    toast('✓ PDF gedownload!');
+  }catch(e){toast('Fout bij PDF genereren: '+e.message);}
+}
+
+async function sharePDF() {
+  const p = PROJECTS.find(pr=>pr.id===selectedPDFProject)||PROJECTS[0];
+  if(!p) { toast('Selecteer eerst een project'); return; }
+
+  // Show share modal
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:5000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)';
+  modal.innerHTML = `
+    <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--rad-xl);width:100%;max-width:480px">
+      <div style="padding:16px 18px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:13px;font-weight:600">PDF Delen</div>
+          <div style="font-size:11px;color:var(--m);margin-top:2px">${p.title}</div>
+        </div>
+        <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;cursor:pointer;color:var(--m);font-size:20px">×</button>
+      </div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+        <div class="field">
+          <div class="field-label">Klant e-mail</div>
+          <input class="inp" id="share-klant-email" value="${p.email||p.contact_email||''}" placeholder="klant@bedrijf.be">
+          ${p.contact?'<div style="font-size:10px;color:var(--m);margin-top:4px">Contact: '+p.contact+(p.phone?' · '+p.phone:'')+'</div>':''}
+        </div>
+        <div class="field">
+          <div class="field-label">CC — Extra ontvanger</div>
+          <input class="inp" id="share-extra-email" placeholder="collega@bedrijf.be">
+        </div>
+        <div class="field">
+          <div class="field-label">Bericht (optioneel)</div>
+          <textarea class="inp" id="share-message" rows="3" placeholder="Geachte, hierbij het opleveringsrapport...">Geachte,\n\nIn bijlage vindt u het opleveringsrapport voor ${p.title}.\n\nMet vriendelijke groeten</textarea>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--m)">
+          <i class="ti ti-info-circle" style="color:var(--a)"></i> 
+          De PDF wordt eerst gegenereerd en dan geopend in uw e-mailclient met alle ontvangers ingevuld.
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="this.closest('[style*=fixed]').remove()">Annuleren</button>
+          <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="doSharePDF(this.closest('[style*=fixed]'))">
+            <i class="ti ti-send"></i> Versturen
+          </button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function doSharePDF(modal) {
+  const klantEmail = document.getElementById('share-klant-email')?.value.trim();
+  const extraEmail = document.getElementById('share-extra-email')?.value.trim();
+  const message = document.getElementById('share-message')?.value.trim();
+  const p = PROJECTS.find(pr=>pr.id===selectedPDFProject)||PROJECTS[0];
+  // Use project email as fallback
+  const effectiveKlantEmail = klantEmail || p?.email || '';
+  const to = [effectiveKlantEmail, extraEmail].filter(Boolean).join(',');
+  console.log('Share to:', to, 'klantEmail:', klantEmail, 'project email:', p?.email);
+
+  modal?.remove();
+  showLoading('PDF genereren...');
+
+  const el = document.getElementById('pdf-render-page');
+  if(!el) { hideLoading(); toast('Genereer eerst een PDF preview'); return; }
+
+  try {
+    const {jsPDF} = window.jspdf;
+    const canvas = await html2canvas(el, {scale:2, useCORS:true, backgroundColor:'#ffffff'});
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdf = new jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
+    const w = pdf.internal.pageSize.getWidth();
+    const h = pdf.internal.pageSize.getHeight();
+    pdf.addImage(imgData, 'JPEG', 0, 0, w, h);
+    const fileName = 'AV-Rapport-' + (p?.id||'rapport') + '.pdf';
+    const pdfBlob = pdf.output('blob');
+
+    hideLoading();
+
+    // Always download the PDF first
+    const blobUrl = URL.createObjectURL(pdfBlob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = fileName;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(blobUrl), 3000);
+
+    // Try native share (mobile) or show instructions
+    setTimeout(async ()=>{
+      const subject = 'Opleveringsrapport - ' + (p?.title||'Project');
+      const bodyText = (message||'Geachte,\n\nIn bijlage vindt u het opleveringsrapport.\n\nMet vriendelijke groeten') + '\n\n---\nRef: ' + (p?.id||'');
+
+      // On mobile: show modal with share options including mailto with recipients
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if(isMobile) {
+        const mmodal = document.createElement('div');
+        mmodal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:6000;display:flex;align-items:flex-end;justify-content:center;padding:16px;backdrop-filter:blur(4px)';
+        const toEncoded = encodeURIComponent(to);
+        const subjectEncoded = encodeURIComponent(subject);
+        const bodyEncoded = encodeURIComponent(bodyText);
+        mmodal.innerHTML = `
+          <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--rad-xl) var(--rad-xl) 0 0;width:100%;max-width:480px;padding:0;padding-bottom:env(safe-area-inset-bottom)">
+            <div style="padding:14px 18px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center">
+              <div style="font-size:13px;font-weight:600">PDF versturen</div>
+              <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;cursor:pointer;color:var(--m);font-size:20px">×</button>
+            </div>
+            <div style="padding:12px 16px;display:flex;flex-direction:column;gap:10px">
+              <div style="background:var(--g3);border:1px solid rgba(52,211,153,.2);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--g)">
+                <i class="ti ti-check"></i> <strong>${fileName}</strong> gedownload
+              </div>
+              ${to ? `
+              <button onclick="window.location.href='mailto:${toEncoded}?subject=${subjectEncoded}&body=${bodyEncoded}';this.closest('[style*=fixed]').remove()" 
+                      class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;font-size:13px">
+                <i class="ti ti-mail"></i> Versturen naar ${to}
+              </button>` : ''}
+              <button onclick="(async()=>{try{const f=new File([window._lastPdfBlob||new Blob()],'${fileName}',{type:'application/pdf'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({title:'${subject}',files:[f]});}}catch(e){}this.closest('[style*=fixed]').remove()})()" 
+                      class="btn btn-ghost" style="width:100%;justify-content:center;padding:12px;font-size:13px">
+                <i class="ti ti-share"></i> Delen via andere app
+              </button>
+            </div>
+          </div>`;
+        window._lastPdfBlob = pdfBlob;
+        document.body.appendChild(mmodal);
+        return;
+      }
+
+      // Desktop: try native share with file
+      try {
+        const pdfFile = new File([pdfBlob], fileName, {type:'application/pdf'});
+        if(navigator.share && navigator.canShare && navigator.canShare({files:[pdfFile]})) {
+          await navigator.share({title: subject, text: bodyText, files: [pdfFile]});
+          toast('PDF gedeeld ✓');
+          return;
+        }
+      } catch(e) {
+        if(e.name === 'AbortError') return;
+      }
+
+      // Desktop/fallback: show instructions modal
+      const imodal = document.createElement('div');
+      imodal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:6000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)';
+      imodal.innerHTML = `
+        <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--rad-xl);width:100%;max-width:440px;padding:0">
+          <div style="padding:16px 18px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:13px;font-weight:600">PDF klaar om te versturen</div>
+            <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;cursor:pointer;color:var(--m);font-size:20px">×</button>
+          </div>
+          <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+            <div style="background:var(--g3);border:1px solid rgba(52,211,153,.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--g);display:flex;gap:8px">
+              <i class="ti ti-check" style="font-size:16px;flex-shrink:0;margin-top:1px"></i>
+              <span><strong>${fileName}</strong> is gedownload naar uw Downloads map</span>
+            </div>
+            <div style="font-size:12px;font-weight:500;color:var(--t);margin-bottom:4px">Verstuur via:</div>
+            ${to ? `<button onclick="window.location.href='mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}';this.closest('[style*=fixed]').remove()" class="btn btn-primary" style="width:100%;justify-content:center;gap:8px">
+              <i class="ti ti-mail"></i> E-mailclient openen (${to})
+            </button>` : ''}
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <button onclick="window.open('https://outlook.live.com/mail/deeplink/compose','_blank');this.closest('[style*=fixed]').remove()" class="btn btn-ghost" style="justify-content:center;gap:6px">
+                <i class="ti ti-brand-office"></i> Outlook Web
+              </button>
+              <button onclick="window.open('https://mail.google.com/mail/u/0/#compose','_blank');this.closest('[style*=fixed]').remove()" class="btn btn-ghost" style="justify-content:center;gap:6px">
+                <i class="ti ti-brand-gmail"></i> Gmail
+              </button>
+            </div>
+            <div style="font-size:10px;color:var(--m);text-align:center;border-top:1px solid var(--b);padding-top:10px">
+              Voeg <strong>${fileName}</strong> toe als bijlage vanuit uw Downloads map
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(imodal);
+    }, 800);
+
+  } catch(e) {
+    hideLoading();
+    if(e.name !== 'AbortError') {
+      toast('Fout: ' + e.message);
+      console.error(e);
+    }
+  }
+}
+
+// ════════════════
+// SIGNATURE (met Supabase)
+// ════════════════
+let sigCanvas,sigCtx,sigWrap;
+let sigState={activeParty:'klant',sigs:{klant:null,technieker:null},sigNames:{klant:'',technieker:''},sigFuncties:{klant:'',technieker:''},paths:[],drawing:false,currentPath:[],penColor:'#1a1a2e',penThick:2};
+function openSignatureForProject(id){selectedPDFProject=id;}
+
+function initTeam() {
+  const c = document.getElementById('sig-content');
+  if(!c) return;
+  showLoading('Team laden...');
+  supaFetch('profiles', {order:'created_at.asc', select:'*'}).then(data=>{
+    hideLoading();
+    const members = data || [];
+    const roleColors = {admin:'var(--a)', technieker:'var(--g)', planner:'var(--am)'};
+    const roleLabels = {admin:'Admin', technieker:'Technieker', planner:'Planner'};
+    c.innerHTML = `
+      <div style="max-width:600px;margin:0 auto">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-head">
+            <div class="card-head-title">Teamleden (${members.length})</div>
+          </div>
+          <div class="card-body" style="padding:0">
+            ${members.map(m=>`
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--b)">
+                <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--a),var(--pu));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0">
+                  ${m.initialen||m.naam?.substring(0,2).toUpperCase()||'??'}
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:600;color:var(--t)">${m.naam||'Onbekend'}</div>
+                  <div style="font-size:11px;color:var(--m);margin-top:1px">${m.id===currentUser?.id?'Jij · ':''}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="badge" style="background:${roleColors[m.rol]||'var(--m)'}22;color:${roleColors[m.rol]||'var(--m)'}">
+                    ${roleLabels[m.rol]||m.rol||'Onbekend'}
+                  </span>
+                  ${m.id!==currentUser?.id?`<button onclick="changeRole('${m.id}','${m.rol}')" class="btn btn-ghost btn-sm"><i class="ti ti-pencil"></i></button>`:''}
+                </div>
+              </div>`).join('')}
+            ${members.length===0?'<div style="padding:24px;text-align:center;color:var(--m)">Geen teamleden gevonden</div>':''}
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-head"><div class="card-head-title">Uitnodigen</div></div>
+          <div class="card-body">
+            <div style="font-size:12px;color:var(--m);margin-bottom:12px">
+              Stuur een uitnodigingslink naar een nieuwe technieker of planner.
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <input class="inp" id="invite-email" placeholder="e-mail@bedrijf.be" style="flex:1;min-width:200px">
+              <select class="inp" id="invite-role" style="width:140px">
+                <option value="technieker">Technieker</option>
+                <option value="planner">Planner</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:10px" onclick="inviteUser()">
+              <i class="ti ti-send"></i> Uitnodiging versturen
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-head-title">Mijn profiel</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+            <div class="field"><div class="field-label">Naam</div>
+              <input class="inp" id="profile-naam" value="${currentProfile?.naam||currentUser?.email||''}">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div class="field"><div class="field-label">Initialen</div>
+                <input class="inp" id="profile-init" value="${currentProfile?.initialen||''}">
+              </div>
+              <div class="field"><div class="field-label">Rol</div>
+                <input class="inp" value="${roleLabels[currentProfile?.rol]||'Technieker'}" readonly style="opacity:.6">
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveProfile()">
+              <i class="ti ti-check"></i> Profiel opslaan
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }).catch(e=>{
+    hideLoading();
+    const c2 = document.getElementById('sig-content');
+    if(c2) c2.innerHTML = '<div style="padding:24px;text-align:center;color:var(--r)">Fout bij laden: '+e.message+'</div>';
+  });
+}
+
+async function changeRole(userId, currentRole) {
+  const roles = ['technieker','planner','admin'];
+  const labels = {technieker:'Technieker', planner:'Planner', admin:'Admin'};
+  const nieuw = roles[(roles.indexOf(currentRole)+1)%roles.length];
+  if(!confirm('Rol wijzigen naar '+labels[nieuw]+'?')) return;
+  try {
+    await supaFetch('profiles', {method:'PATCH', filter:`id=eq.${userId}`, body:{rol:nieuw}});
+    toast('Rol gewijzigd naar '+labels[nieuw]+' ✓');
+    initTeam();
+  } catch(e) { toast('Fout: '+e.message); }
+}
+
+async function inviteUser() {
+  const email = document.getElementById('invite-email')?.value.trim();
+  const rol = document.getElementById('invite-role')?.value || 'technieker';
+  if(!email) { toast('Vul een e-mailadres in'); return; }
+  const subject = encodeURIComponent('Uitnodiging AV Install Pro');
+  const body = encodeURIComponent('Beste,\n\nJe bent uitgenodigd voor AV Install Pro als '+rol+'.\n\nRegistreer via:\nhttps://stijnborloo.github.io/field-assist/\n\nMet vriendelijke groeten,\n'+(currentProfile?.naam||''));
+  window.location.href = 'mailto:'+encodeURIComponent(email)+'?subject='+subject+'&body='+body;
+  toast('E-mailclient geopend ✓');
+}
+
+async function saveProfile() {
+  const naam = document.getElementById('profile-naam')?.value.trim();
+  const initialen = document.getElementById('profile-init')?.value.trim().toUpperCase();
+  if(!naam) { toast('Vul een naam in'); return; }
+  try {
+    await supaFetch('profiles', {method:'PATCH', filter:`id=eq.${currentUser.id}`, body:{naam, initialen}});
+    if(currentProfile) { currentProfile.naam=naam; currentProfile.initialen=initialen; }
+    const el = document.querySelector('.user-name'); if(el) el.textContent=naam;
+    const av = document.querySelector('.user-av'); if(av) av.textContent=initialen||naam.substring(0,2).toUpperCase();
+    toast('Profiel opgeslagen ✓');
+  } catch(e) { toast('Fout: '+e.message); }
+}
+function initSignature(){
+  const p=PROJECTS.find(pr=>pr.id===selectedPDFProject)||PROJECTS[0];
+  if(p){document.getElementById('sig-project-name').textContent=`— ${p.title}`;sigState.sigNames.klant=sigState.sigNames.klant||p.contact||'';sigState.sigNames.technieker=sigState.sigNames.technieker||currentProfile?.naam||'';}
+  updateSigBadge();
+  const c=document.getElementById('sig-content'); if(!c)return;
+  c.innerHTML=`<div style="display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start;max-width:100%"><div class="card"><div class="card-head"><div><div class="card-head-title">Digitale handtekening</div></div><div style="display:flex;align-items:center;gap:8px"><button class="btn btn-ghost btn-sm" onclick="sigClear()"><i class="ti ti-eraser"></i> Wissen</button><button class="btn btn-success btn-sm" onclick="confirmSig()"><i class="ti ti-check"></i> Bevestigen & opslaan</button></div></div><div style="padding:16px"><div class="sig-who-tabs"><button class="sig-who-tab active" id="who-tab-klant" onclick="switchSigParty('klant')">👤 Klant</button><button class="sig-who-tab" id="who-tab-technieker" onclick="switchSigParty('technieker')">🔧 Technieker</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="field"><div class="field-label">Naam</div><input class="inp" id="sig-naam" value="${sigState.sigNames[sigState.activeParty]}"></div><div class="field"><div class="field-label">Functie</div><input class="inp" id="sig-functie" value="${sigState.sigFuncties[sigState.activeParty]}"></div></div><div class="pen-toolbar" style="margin-bottom:10px">${['#1a1a2e','#4f8ef7','#f87171','#34d399'].map(c=>`<div class="color-dot${sigState.penColor===c?' sel':''}" style="background:${c}" data-color="${c}" onclick="setSigColor(this)"></div>`).join('')}${[1,2,4].map(v=>`<button class="thick-btn${sigState.penThick===v?' active':''}" onclick="setSigThick(${v},this)">${v===1?'Fijn':v===2?'Normaal':'Dik'}</button>`).join('')}</div><div class="sig-canvas-wrap" id="sig-wrap"><canvas id="sig-canvas" class="sig-canvas" height="140"></canvas><div class="sig-placeholder" id="sig-placeholder"><i class="ti ti-pencil"></i><span>Teken hier uw handtekening</span></div></div></div></div><div><div class="card" style="margin-bottom:12px"><div class="card-head"><div class="card-head-title">Status</div></div><div class="card-body"><div style="display:flex;gap:8px;flex-direction:column"><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--b)"><span style="color:var(--m)">Klant</span><span id="m-klant" class="${sigState.sigs.klant?'meta-val-ok':''}">${sigState.sigs.klant?sigState.sigNames.klant:'Wacht...'}</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--b)"><span style="color:var(--m)">Technieker</span><span id="m-tech" class="${sigState.sigs.technieker?'meta-val-ok':''}">${sigState.sigs.technieker?sigState.sigNames.technieker:'Wacht...'}</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0"><span style="color:var(--m)">Juridisch</span><span id="m-legal">${sigState.sigs.klant&&sigState.sigs.technieker?'Juridisch geldig':'Nog niet geldig'}</span></div></div></div></div><div class="card" style="margin-bottom:12px"><div class="card-head"><div class="card-head-title">Previews</div></div><div class="card-body" style="display:flex;flex-direction:column;gap:8px"><div><div class="field-label" style="margin-bottom:4px">Klant</div><div class="sig-preview-box" id="prev-klant" style="height:50px;display:flex;align-items:center;justify-content:center;background:var(--s2)">${sigState.sigs.klant?`<img src="${sigState.sigs.klant}" style="max-height:44px">`:''}</div></div><div><div class="field-label" style="margin-bottom:4px">Technieker</div><div class="sig-preview-box" id="prev-technieker" style="height:50px;display:flex;align-items:center;justify-content:center;background:var(--s2)">${sigState.sigs.technieker?`<img src="${sigState.sigs.technieker}" style="max-height:44px">`:''}</div></div></div></div><button class="btn btn-primary" style="width:100%;justify-content:center" id="btn-goto-pdf" ${sigState.sigs.klant&&sigState.sigs.technieker?'':'disabled'} onclick="openPDFForProject(selectedPDFProject||PROJECTS[0]?.id)"><i class="ti ti-file-type-pdf"></i> Naar PDF Export</button><div id="sig-log" style="margin-top:12px;max-height:120px;overflow-y:auto"></div></div></div>`;
+  initSigCanvas();
+}
+function initSigCanvas(){
+  sigCanvas=document.getElementById('sig-canvas'); if(!sigCanvas)return;
+  sigWrap=document.getElementById('sig-wrap'); sigCtx=sigCanvas.getContext('2d');
+  sigCanvas.width=sigWrap.offsetWidth||480; sigCanvas.height=140; redrawSig();
+  sigCanvas.addEventListener('mousedown',sigStart); sigCanvas.addEventListener('mousemove',sigMove);
+  sigCanvas.addEventListener('mouseup',sigEnd); sigCanvas.addEventListener('mouseleave',sigEnd);
+  sigCanvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];sigStart({clientX:t.clientX,clientY:t.clientY});},{passive:false});
+  sigCanvas.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0];sigMove({clientX:t.clientX,clientY:t.clientY});},{passive:false});
+  sigCanvas.addEventListener('touchend',sigEnd,{passive:false});
+}
+function sigStart(e){sigState.drawing=true;const r=sigCanvas.getBoundingClientRect();sigState.currentPath=[{x:e.clientX-r.left,y:e.clientY-r.top}];document.getElementById('sig-placeholder')?.classList.add('hide');sigWrap?.classList.add('active');}
+function sigMove(e){if(!sigState.drawing)return;const r=sigCanvas.getBoundingClientRect();sigState.currentPath.push({x:e.clientX-r.left,y:e.clientY-r.top});redrawSig();}
+function sigEnd(){if(!sigState.drawing)return;sigState.drawing=false;if(sigState.currentPath.length>1){sigState.paths.push({points:[...sigState.currentPath],color:sigState.penColor,thick:sigState.penThick});sigWrap?.classList.remove('active');sigWrap?.classList.add('has-sig');}sigState.currentPath=[];}
+function redrawSig(){
+  sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);
+  const drawPath=(pts,color,thick)=>{if(pts.length<2)return;sigCtx.beginPath();sigCtx.strokeStyle=color;sigCtx.lineWidth=thick;sigCtx.lineCap='round';sigCtx.lineJoin='round';sigCtx.moveTo(pts[0].x,pts[0].y);pts.slice(1).forEach(p=>sigCtx.lineTo(p.x,p.y));sigCtx.stroke();};
+  sigState.paths.forEach(p=>drawPath(p.points,p.color,p.thick));
+  if(sigState.currentPath.length>1)drawPath(sigState.currentPath,sigState.penColor,sigState.penThick);
+}
+function sigClear(){sigState.paths=[];sigState.currentPath=[];if(sigCtx&&sigCanvas)sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);document.getElementById('sig-placeholder')?.classList.remove('hide');sigWrap?.classList.remove('active','has-sig');}
+function setSigColor(el){document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');sigState.penColor=el.dataset.color;}
+function setSigThick(v,el){document.querySelectorAll('.thick-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');sigState.penThick=v;}
+function switchSigParty(party){
+  sigState.activeParty=party;
+  document.querySelectorAll('.sig-who-tab').forEach(t=>t.classList.remove('active'));
+  const tab=document.getElementById('who-tab-'+party); if(tab)tab.classList.add('active');
+  const naam=document.getElementById('sig-naam'); const functie=document.getElementById('sig-functie');
+  if(naam)naam.value=sigState.sigNames[party]||''; if(functie)functie.value=sigState.sigFuncties[party]||'';
+  sigClear();
+}
+async function confirmSig(){
+  if(!sigCanvas||sigState.paths.length===0){toast('Teken eerst uw handtekening');return;}
+  const naam=document.getElementById('sig-naam'); const functie=document.getElementById('sig-functie');
+  const name=naam?naam.value.trim():sigState.sigNames[sigState.activeParty];
+  const func=functie?functie.value.trim():sigState.sigFuncties[sigState.activeParty];
+  sigState.sigNames[sigState.activeParty]=name; sigState.sigFuncties[sigState.activeParty]=func;
+  sigState.sigs[sigState.activeParty]=sigCanvas.toDataURL('image/png');
+  const prevEl=document.getElementById('prev-'+sigState.activeParty);
+  if(prevEl)prevEl.innerHTML=`<img src="${sigState.sigs[sigState.activeParty]}" style="max-width:100%;max-height:50px">`;
+  const mEl=document.getElementById('m-'+(sigState.activeParty==='klant'?'klant':'tech'));
+  if(mEl){mEl.textContent=name;mEl.className='meta-val-ok';}
+  // Opslaan naar Supabase
+  const projectId=selectedPDFProject||PROJECTS[0]?.id;
+  if(projectId){
+    try {
+      await supaFetch('handtekeningen', {method:'POST', body:{project_id:projectId,partij:sigState.activeParty,naam:name,functie:func,data_url:sigState.sigs[sigState.activeParty]}});
+    } catch(e) { console.warn('Handtekening opslaan fout:',e.message); }
+  }
+  if(sigState.sigs.klant&&sigState.sigs.technieker){
+    document.getElementById('m-legal').textContent='Juridisch geldig'; document.getElementById('m-legal').className='meta-val-ok';
+    const pdfBtn=document.getElementById('btn-goto-pdf'); if(pdfBtn)pdfBtn.disabled=false;
+    updateSigBadge(); toast('✓ Beide handtekeningen opgeslagen in Supabase!');
+  } else {
+    const other=sigState.activeParty==='klant'?'technieker':'klant';
+    updateSigBadge(); toast(`Handtekening van ${name} opgeslagen ✓`); switchSigParty(other);
+  }
+}
+function updateSigBadge(){
+  const badge=document.getElementById('sig-status-badge'); if(!badge)return;
+  if(sigState.sigs.klant&&sigState.sigs.technieker){badge.className='badge badge-done';badge.textContent='Beide ondertekend ✓';}
+  else if(sigState.sigs.klant||sigState.sigs.technieker){badge.className='badge badge-active';badge.textContent='Gedeeltelijk ondertekend';}
+  else{badge.className='badge badge-draft';badge.textContent='Wacht op handtekening';}
+}
+
+
+// ════════════════════════════════════════
+// MOBILE NAVIGATION & SIDEBAR
+// ════════════════════════════════════════
+function openSidebar() {
+  document.querySelector('.sidebar').classList.add('open');
+  document.getElementById('sidebar-backdrop').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+// Override showView to also close sidebar and sync bottom nav on mobile
+// showView mobile sync - no override needed, handled in original
+
+function setBottomNav(activeId) {
+  document.querySelectorAll('.bottom-nav-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById(activeId);
+  if(el) el.classList.add('active');
+}
+
+// Mobile search toggle (simple expand/collapse)
+let mobileSearchOpen = false;
+function toggleMobileSearch() {
+  mobileSearchOpen = !mobileSearchOpen;
+  const topbar = document.querySelector('#view-dashboard .topbar, #view-projects .topbar');
+  // Show/hide a floating search bar below topbar
+  let bar = document.getElementById('mobile-search-bar');
+  if(!bar) {
+    bar = document.createElement('div');
+    bar.id = 'mobile-search-bar';
+    bar.style.cssText = 'padding:8px 16px;border-bottom:1px solid var(--b);background:var(--s);display:none';
+    bar.innerHTML = '<div style="display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:8px 12px"><i class="ti ti-search" style="color:var(--m);font-size:14px"></i><input id="mobile-search-input" style="background:none;border:none;outline:none;color:var(--t);font-size:13px;font-family:var(--font);width:100%" placeholder="Zoek project, klant, ref..."><button onclick="toggleMobileSearch()" style="background:none;border:none;cursor:pointer;color:var(--m);padding:0"><i class="ti ti-x" style="font-size:14px"></i></button></div>';
+    // Insert after first topbar in main
+    const firstView = document.querySelector('.view-wrap');
+    if(firstView) firstView.insertBefore(bar, firstView.children[1]);
+  }
+  bar.style.display = mobileSearchOpen ? 'block' : 'none';
+  if(mobileSearchOpen) document.getElementById('mobile-search-input')?.focus();
+}
+
+// Update badge in bottom nav when projects update
+// bottom nav badge update handled inside updateDashboardStats directly
+
+// Swipe to close sidebar on mobile
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if(dx < -60 && document.querySelector('.sidebar.open')) closeSidebar();
+}, {passive:true});
+
+// Close sidebar nav items also close on mobile
+document.querySelectorAll('.nav-item').forEach(item => {
+  const orig = item.onclick;
+  item.addEventListener('click', () => {
+    if(window.innerWidth <= 768) closeSidebar();
+  });
+});
+
+// ════════════════
+// INIT
+// ════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  initAuth();
+  // Logout button on dots icon
+  // logout handled via onclick on button directly
+  // Sync dot in sidebar
+  const sbUser=document.querySelector('.sb-user');
+  if(sbUser){
+    sbUser.style.position='relative';
+    const dot=document.createElement('div');
+    dot.id='sync-dot'; dot.className='sync-dot syncing'; dot.title='Verbinding controleren...';
+    dot.style.cssText='position:absolute;top:8px;right:8px;cursor:help';
+    sbUser.appendChild(dot);
+  }
+  document.getElementById('login-email')?.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-pass')?.focus();});
+  document.getElementById('login-pass')?.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+});
+
+
+</script>
+</body>
+</html>
