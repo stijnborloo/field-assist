@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>AV Install Pro</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0f11;--s:#16181c;--s2:#1e2026;--s3:#252830;
+  --b:#2a2d35;--b2:#353840;--b3:#454850;
+  --t:#e8eaf0;--t2:#b0b4c4;--m:#7c8096;--m2:#555870;
+  --a:#4f8ef7;--a2:#3d7de8;--a3:rgba(79,142,247,.12);
+  --g:#34d399;--g2:#2ecc87;--g3:rgba(52,211,153,.12);
+  --am:#fbbf24;--am3:rgba(251,191,36,.12);
+  --r:#f87171;--r3:rgba(248,113,113,.12);
+  --pu:#a78bfa;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --rad:10px;--rad-lg:16px;--rad-xl:20px;
+  --bottom-nav-h:64px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--t);font-size:14px}
+
+/* ── Layout ── */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--s);border-right:1px solid var(--b);display:flex;flex-direction:column;transition:transform .25s ease,box-shadow .25s ease;z-index:200}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{padding:14px 24px;border-bottom:1px solid var(--b);background:var(--s);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.content{flex:1;overflow-y:auto;padding:24px}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+
+/* ── Sidebar ── */
+.sb-logo{padding:18px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px}
+.sb-logo-icon{width:32px;height:32px;background:var(--a);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0}
+.sb-logo-text{font-size:13px;font-weight:600;line-height:1.2}
+.sb-logo-sub{font-size:10px;color:var(--m);letter-spacing:.05em;text-transform:uppercase}
+.sb-nav{flex:1;padding:10px 8px;overflow-y:auto}
+.sb-section{margin-bottom:18px}
+.sb-section-label{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.08em;font-weight:500;padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--m);font-size:13px;transition:all .15s;margin-bottom:2px;position:relative;user-select:none}
+.nav-item:hover{background:var(--s2);color:var(--t)}
+.nav-item.active{background:var(--a3);color:var(--a)}
+.nav-item i{font-size:16px;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--a);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;font-family:var(--mono)}
+.sb-user{padding:12px 14px;border-top:1px solid var(--b);display:flex;align-items:center;gap:10px}
+.user-av{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--a),var(--pu));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.user-name{font-size:12px;font-weight:500}
+.user-role{font-size:10px;color:var(--m)}
+
+/* ── Mobile overlay backdrop ── */
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199;backdrop-filter:blur(2px)}
+
+/* ── Hamburger button ── */
+.btn-hamburger{display:none;background:none;border:none;cursor:pointer;padding:4px;border-radius:8px;color:var(--t);align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.btn-hamburger:hover{background:var(--s2)}
+.btn-hamburger i{font-size:22px}
+
+/* ── Topbar ── */
+.tb-title{font-size:15px;font-weight:600}
+.tb-sub{font-size:12px;color:var(--m);margin-left:4px}
+.tb-sub-mobile{display:none}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:7px 12px;width:200px}
+.search-box input{background:none;border:none;outline:none;color:var(--t);font-size:12px;font-family:var(--font);width:100%}
+.search-box input::placeholder{color:var(--m)}
+.search-box i{color:var(--m);font-size:14px;flex-shrink:0}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:none;font-family:var(--font);transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--a);color:#fff}
+.btn-primary:hover{background:var(--a2)}
+.btn-primary:disabled{background:var(--b);color:var(--m);cursor:not-allowed;opacity:.6}
+.btn-ghost{background:transparent;color:var(--m);border:1px solid var(--b)}
+.btn-ghost:hover{background:var(--s2);color:var(--t)}
+.btn-danger{background:transparent;color:var(--r);border:1px solid rgba(248,113,113,.25)}
+.btn-danger:hover{background:var(--r3)}
+.btn-success{background:var(--g);color:#0e0f11;font-weight:600}
+.btn-success:hover{background:var(--g2)}
+.btn-success:disabled{background:var(--b);color:var(--m);cursor:not-allowed}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-icon{padding:8px;width:36px;height:36px;justify-content:center}
+
+/* ── Cards ── */
+.card{background:var(--s);border:1px solid var(--b);border-radius:var(--rad-lg)}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between}
+.card-head-title{font-size:13px;font-weight:600}
+.card-body{padding:18px}
+
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.badge-draft{background:rgba(124,128,150,.15);color:var(--m)}
+.badge-active{background:var(--a3);color:var(--a)}
+.badge-pending{background:var(--am3);color:var(--am)}
+.badge-done{background:var(--g3);color:var(--g)}
+.badge-error{background:var(--r3);color:var(--r)}
+
+/* ── Stats ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--s);border:1px solid var(--b);border-radius:var(--rad-lg);padding:16px}
+.stat-label{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.stat-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.stat-value{font-size:28px;font-weight:600;line-height:1;margin-bottom:4px}
+.stat-delta{font-size:11px;color:var(--m)}
+.delta-up{color:var(--g)}
+
+/* ── Project cards ── */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.proj-card{background:var(--s);border:1px solid var(--b);border-radius:var(--rad-lg);padding:16px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.proj-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--b));border-radius:2px 2px 0 0}
+.proj-card:hover{border-color:var(--b2);transform:translateY(-1px)}
+.proj-card.selected{border-color:var(--a);box-shadow:0 0 0 1px var(--a)}
+.pc-ref{font-size:10px;color:var(--m);font-family:var(--mono);letter-spacing:.04em}
+.pc-title{font-size:13px;font-weight:600;margin-top:2px;margin-bottom:2px;color:var(--t)}
+.pc-client{font-size:11px;color:var(--m)}
+.pc-meta{display:flex;gap:12px;margin:10px 0;flex-wrap:wrap}
+.pc-meta-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--m)}
+.pc-meta-item i{font-size:12px}
+.progress-bar{height:3px;background:var(--b);border-radius:2px;overflow:hidden;margin:8px 0 6px}
+.progress-fill{height:100%;border-radius:2px;background:var(--a)}
+.progress-label{display:flex;justify-content:space-between;font-size:10px;color:var(--m)}
+.pc-rooms{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.room-pill-sm{padding:2px 7px;background:var(--s2);border:1px solid var(--b);border-radius:4px;font-size:10px;color:var(--m)}
+.pc-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--b)}
+.tech-stack{display:flex}
+.tech-av{width:22px;height:22px;border-radius:6px;border:2px solid var(--s);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;margin-left:-4px}
+.tech-av:first-child{margin-left:0}
+.pc-actions{display:flex;gap:4px}
+.pc-action{width:26px;height:26px;border-radius:6px;border:1px solid var(--b);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--m);transition:all .15s}
+.pc-action:hover{background:var(--s2);color:var(--t)}
+.pc-action i{font-size:13px}
+
+/* ── Filters ── */
+.filters{display:flex;align-items:center;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:5px 12px;border-radius:16px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--b);background:transparent;color:var(--m);transition:all .15s;font-family:var(--font)}
+.filter-btn:hover{border-color:var(--b2);color:var(--t)}
+.filter-btn.active{background:var(--a);border-color:var(--a);color:#fff}
+.filter-sep{margin-left:auto;display:flex;gap:6px}
+
+/* ── Detail panel ── */
+.detail-panel{width:360px;flex-shrink:0;background:var(--s);border-left:1px solid var(--b);display:flex;flex-direction:column;overflow:hidden}
+.dp-header{padding:14px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.dp-title{font-size:13px;font-weight:600}
+.tab-row{display:flex;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--s);overflow-x:auto}
+.tab-row::-webkit-scrollbar{display:none}
+.tab{padding:10px 12px;font-size:11px;font-weight:500;color:var(--m);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all .15s}
+.tab:hover{color:var(--t)}
+.tab.active{color:var(--a);border-bottom-color:var(--a)}
+.dp-body{flex:1;overflow-y:auto;padding:16px}
+.dp-body::-webkit-scrollbar{width:3px}
+.dp-body::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+
+/* ── Form fields ── */
+.field{margin-bottom:14px}
+.field-label{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:5px}
+.field-val{font-size:12px;font-weight:500;color:var(--t)}
+.field-muted{font-size:12px;color:var(--m)}
+.inp{width:100%;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:8px 12px;color:var(--t);font-size:12px;font-family:var(--font);outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--a)}
+.inp::placeholder{color:var(--m)}
+.inp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* ── Checklist ── */
+.check-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b)}
+.check-item:last-child{border-bottom:none}
+.check-box{width:17px;height:17px;border-radius:4px;border:1.5px solid var(--b2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.check-box.checked{background:var(--g);border-color:var(--g);color:#0e0f11}
+.check-box.checked::after{content:'✓';font-size:10px;font-weight:700}
+.check-text{font-size:12px;flex:1;line-height:1.3}
+.check-text.done{text-decoration:line-through;color:var(--m)}
+.check-req{font-size:9px;color:var(--r);font-weight:600;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0}
+
+/* ── Room items ── */
+.room-item{display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--s2);border:1px solid var(--b);border-radius:var(--rad);margin-bottom:6px;cursor:pointer;transition:all .15s}
+.room-item:hover{border-color:var(--b2)}
+.room-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.room-info{flex:1;min-width:0}
+.room-name{font-size:12px;font-weight:500}
+.room-count{font-size:10px;color:var(--m)}
+
+/* ── Photos ── */
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.photo-thumb{aspect-ratio:1;border-radius:6px;background:var(--s2);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--m);font-size:20px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.photo-thumb:hover{border-color:var(--a)}
+.photo-thumb.add{border:1.5px dashed var(--b2)}
+.photo-thumb.add:hover{border-color:var(--a);color:var(--a)}
+
+/* ── Signature canvas ── */
+.sig-canvas-wrap{position:relative;border-radius:10px;overflow:hidden;border:2px dashed var(--b2);background:#fff;cursor:crosshair;transition:border-color .15s}
+.sig-canvas-wrap.active{border-color:var(--a);border-style:solid}
+.sig-canvas-wrap.has-sig{border-style:solid;border-color:var(--b2)}
+.sig-canvas{display:block;width:100%;touch-action:none}
+.sig-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;pointer-events:none;transition:opacity .2s}
+.sig-placeholder i{font-size:26px;color:#c9cdd8}
+.sig-placeholder span{font-size:11px;color:#adb5bd}
+.sig-placeholder.hide{opacity:0}
+.pen-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.color-dot{width:14px;height:14px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0}
+.color-dot.sel{border-color:#fff;transform:scale(1.2)}
+.thick-btn{padding:2px 7px;border-radius:4px;border:1px solid var(--b);background:transparent;color:var(--m);font-size:10px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.thick-btn.active{background:var(--s2);color:var(--t);border-color:var(--b2)}
+.sig-who-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.sig-who-tab{padding:8px;border-radius:8px;border:1px solid var(--b);background:transparent;color:var(--m);font-size:12px;font-weight:500;font-family:var(--font);cursor:pointer;text-align:center;transition:all .15s}
+.sig-who-tab.active{background:var(--a3);border-color:rgba(79,142,247,.4);color:var(--a)}
+.sig-who-tab.done{box-shadow:0 0 0 1px var(--g);color:var(--g)}
+
+/* ── Signature preview ── */
+.sig-preview-box{border:1px solid var(--b);border-radius:8px;overflow:hidden;margin-bottom:10px}
+.sig-preview-label{font-size:9px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;padding:5px 10px;border-bottom:1px solid var(--b);font-weight:500}
+.sig-preview-img{background:#fff;min-height:50px;display:flex;align-items:center;justify-content:center;padding:6px}
+.sig-preview-empty{font-size:10px;color:#adb5bd;font-style:italic}
+
+/* ── Excel import ── */
+.drop-zone{border:2px dashed var(--b2);border-radius:12px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--a);background:rgba(79,142,247,.04)}
+.step-indicator{display:flex;align-items:center;padding:12px 18px;border-bottom:1px solid var(--b);background:var(--s2)}
+.step-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;border:1.5px solid var(--b);color:var(--m);flex-shrink:0;transition:all .25s}
+.step-dot.s-active{background:var(--a);border-color:var(--a);color:#fff}
+.step-dot.s-done{background:var(--g);border-color:var(--g);color:#0e0f11}
+.step-lbl{font-size:11px;color:var(--m);margin:0 6px;white-space:nowrap}
+.step-lbl.s-active{color:var(--t);font-weight:500}
+.step-lbl.s-done{color:var(--g)}
+.step-line{flex:1;height:1px;background:var(--b);margin:0 6px}
+.map-row{display:grid;grid-template-columns:140px 1fr 1fr;align-items:center;padding:9px 14px;border-bottom:1px solid var(--b);gap:8px}
+.map-row:last-child{border-bottom:none}
+.map-select{background:var(--s);border:1px solid var(--b);border-radius:7px;padding:5px 8px;font-size:11px;color:var(--t);font-family:var(--font);outline:none;width:100%;transition:border-color .15s;cursor:pointer}
+.map-select:focus{border-color:var(--a)}
+.map-example{font-size:10px;color:var(--m);font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── Table ── */
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{background:var(--s2);padding:7px 10px;text-align:left;font-size:9px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;font-weight:500;border-bottom:1px solid var(--b);white-space:nowrap}
+.tbl td{padding:8px 10px;border-bottom:0.5px solid var(--b);color:var(--t2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr.err-row{background:var(--r3)}
+.tbl tr:nth-child(even):not(.err-row){background:rgba(255,255,255,.01)}
+.tbl tr:hover{background:var(--s2)}
+.tbl-wrap{border:1px solid var(--b);border-radius:var(--rad);overflow:hidden}
+.tbl-scroll{overflow-x:auto}
+.err-pill{display:inline-block;font-size:9px;background:var(--r3);color:var(--r);padding:1px 5px;border-radius:3px;margin-top:2px}
+
+/* ── PDF preview ── */
+.pdf-a4{background:#fff;border:0.5px solid var(--b);border-radius:4px;color:#111;font-family:var(--font);overflow:hidden;margin-bottom:12px}
+.pdf-cover-header{background:#0d1117;padding:24px 28px 20px}
+.pdf-cover-logo{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.pdf-cover-logo-icon{width:26px;height:26px;background:#4f8ef7;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0}
+.pdf-cover-logo-text{color:#fff;font-size:11px;font-weight:600}
+.pdf-cover-logo-sub{color:#6b7280;font-size:9px;text-transform:uppercase;letter-spacing:.06em}
+.pdf-section{padding:16px 24px;border-top:1px solid #f3f4f6}
+.pdf-sec-head{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.pdf-sec-num{width:18px;height:18px;background:#0d1117;border-radius:3px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700;flex-shrink:0}
+.pdf-sec-title{font-size:10px;font-weight:600;color:#111;text-transform:uppercase;letter-spacing:.06em}
+.pdf-footer{background:#f9fafb;border-top:1px solid #e5e7eb;padding:8px 24px;display:flex;justify-content:space-between;font-size:8px;color:#9ca3af}
+.pdf-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pdf-info-cell{padding:8px 10px;background:#f9fafb;border-radius:4px;border:0.5px solid #e5e7eb}
+.pdf-info-k{font-size:8px;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.pdf-info-v{font-size:10px;color:#111;font-weight:500}
+.pdf-tbl{width:100%;border-collapse:collapse;font-size:9px}
+.pdf-tbl th{text-align:left;padding:5px 7px;background:#f9fafb;color:#6b7280;font-weight:500;font-size:8px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e5e7eb}
+.pdf-tbl td{padding:6px 7px;border-bottom:0.5px solid #f3f4f6;color:#374151}
+.pdf-tbl tr:last-child td{border-bottom:none}
+.pdf-tbl tr:nth-child(even) td{background:#fafafa}
+.pdf-sn{font-family:monospace;font-size:8px;color:#6b7280}
+.pdf-room-tag{display:inline-block;padding:1px 5px;background:#eff6ff;color:#1e40af;border-radius:2px;font-size:8px;font-weight:500}
+.pdf-check-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:0.5px solid #f3f4f6;font-size:9px}
+.pdf-check-row:last-child{border-bottom:none}
+.pdf-ci{width:12px;height:12px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0}
+.pdf-ci-ok{background:#dcfce7;color:#166534}
+.pdf-ci-no{background:#fee2e2;color:#991b1b}
+.pdf-sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pdf-sig-who{font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:5px;font-weight:500}
+.pdf-sig-line{height:44px;border:1px dashed #d1d5db;border-radius:3px;display:flex;align-items:center;padding:6px 8px}
+.pdf-sig-name{font-size:9px;color:#374151;font-weight:500;border-top:0.5px solid #e5e7eb;padding-top:3px;margin-top:3px}
+.pdf-sig-date{font-size:8px;color:#9ca3af;margin-top:1px}
+.pdf-sig-scribble{font-style:italic;color:#4b5563;font-size:11px;font-family:Georgia,serif}
+.pdf-open-item{display:flex;gap:6px;font-size:9px;color:#78350f;padding:3px 0}
+.pdf-open-arr{color:#d97706;font-weight:600;flex-shrink:0}
+
+/* ── Misc ── */
+.section-head{font-size:10px;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section-head::after{content:'';flex:1;height:1px;background:var(--b)}
+.divider{height:1px;background:var(--b);margin:12px 0}
+.notice{background:var(--a3);border:1px solid rgba(79,142,247,.2);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--a)}
+.notice-warn{background:var(--am3);border-color:rgba(251,191,36,.2);color:var(--am)}
+.notice-ok{background:var(--g3);border-color:rgba(52,211,153,.2);color:var(--g)}
+.notice-err{background:var(--r3);border-color:rgba(248,113,113,.2);color:var(--r)}
+.meta-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--b);font-size:11px}
+.meta-row:last-child{border-bottom:none}
+.meta-key{color:var(--m)}
+.meta-val-ok{color:var(--g);font-weight:500}
+.meta-val-warn{color:var(--am)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a3f7a;color:#fff;border-radius:10px;padding:10px 18px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px;opacity:0;transition:all .3s;z-index:999;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.progress-ring{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--m);margin-top:4px}
+.prog-bar-sm{flex:1;height:3px;background:var(--b);border-radius:2px;overflow:hidden}
+.prog-fill-sm{height:100%;background:var(--a);border-radius:2px;transition:width .3s}
+
+
+/* ── Login overlay ── */
+.login-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .3s}
+.login-overlay.hidden{opacity:0;pointer-events:none}
+.login-box{width:360px;background:var(--s);border:1px solid var(--b);border-radius:var(--rad-xl);padding:32px;display:flex;flex-direction:column;gap:20px}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.login-logo-icon{width:40px;height:40px;background:var(--a);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px}
+.login-title{font-size:18px;font-weight:600}
+.login-sub{font-size:12px;color:var(--m)}
+.login-field{display:flex;flex-direction:column;gap:5px}
+.login-field label{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;font-weight:500}
+.login-err{font-size:11px;color:var(--r);background:var(--r3);border:1px solid rgba(248,113,113,.2);border-radius:6px;padding:8px 12px;display:none}
+.login-err.show{display:block}
+.login-toggle{font-size:11px;text-align:center;color:var(--m)}
+.login-toggle a{color:var(--a);cursor:pointer;text-decoration:none}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--g);flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.sync-dot.offline{background:var(--r);animation:none}
+.sync-dot.syncing{background:var(--am)}
+.spinner{width:20px;height:20px;border:2px solid var(--b);border-top-color:var(--a);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{position:fixed;inset:0;background:rgba(14,15,17,.8);display:flex;align-items:center;justify-content:center;z-index:9998;gap:12px;font-size:13px;color:var(--t2);backdrop-filter:blur(4px)}
+.loading-overlay.hidden{display:none}
+.meta-val-ok{color:var(--g);font-weight:500}
+
+/* ══════════════════════════════════════
+   MOBILE RESPONSIVE — MEDIA QUERIES
+   ══════════════════════════════════════ */
+
+/* ── Bottom nav (mobile only) ── */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bottom-nav-h);background:var(--s);border-top:1px solid var(--b);z-index:100;align-items:center;justify-content:space-around;padding:0 8px;safe-area-inset-bottom:env(safe-area-inset-bottom)}
+.bottom-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;border-radius:10px;cursor:pointer;color:var(--m);font-size:10px;font-weight:500;transition:all .15s;flex:1;min-width:0;text-align:center;position:relative;user-select:none}
+.bottom-nav-item i{font-size:20px;line-height:1}
+.bottom-nav-item.active{color:var(--a)}
+.bottom-nav-badge{position:absolute;top:4px;right:calc(50% - 18px);background:var(--a);color:#fff;font-size:9px;font-weight:700;padding:0 4px;border-radius:6px;min-width:14px;text-align:center;line-height:14px;height:14px}
+.mobile-search-btn{display:none;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--m);align-items:center;justify-content:center}
+.mobile-search-btn i{font-size:16px}
+.btn-hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--t);align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.btn-hamburger:hover{background:var(--s2)}
+.btn-hamburger i{font-size:22px}
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199;backdrop-filter:blur(2px)}
+
+@media (max-width: 768px) {
+  /* Signature grid mobile: force 1 col via JS or override container */
+  #sig-content > div[style*="grid-template-columns:1fr 300px"]{grid-template-columns:1fr !important}
+  html,body{overflow:hidden}
+  .app{flex-direction:column;height:100vh}
+  .btn-hamburger{display:inline-flex}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;transform:translateX(-100%);box-shadow:none;width:260px;z-index:200;transition:transform .25s ease,box-shadow .25s ease}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  .sidebar-backdrop.visible{display:block}
+  .main{flex:1;overflow:hidden;padding-bottom:var(--bottom-nav-h)}
+  .topbar{padding:12px 16px;gap:10px}
+  .tb-title{font-size:14px}
+  .tb-sub{display:none}
+  .search-box{display:none}
+  .mobile-search-btn{display:inline-flex}
+  .tb-right{gap:8px}
+  .content{padding:14px}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+  .stat-value{font-size:22px}
+  .proj-grid{grid-template-columns:1fr}
+  .filters{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .filters::-webkit-scrollbar{display:none}
+  .filter-sep{margin-left:0;flex-shrink:0}
+  .detail-panel{position:fixed;inset:0;bottom:var(--bottom-nav-h);width:100%;border-left:none;z-index:150;border-top:1px solid var(--b)}
+  .bottom-nav{display:flex}
+  .step-lbl{display:none}
+  .step-indicator{gap:6px;padding:10px 12px}
+  .map-row{grid-template-columns:1fr;gap:4px;padding:10px 14px}
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .inp-grid{grid-template-columns:1fr}
+  .pdf-info-grid{grid-template-columns:1fr}
+  .pdf-sig-grid{grid-template-columns:1fr;gap:12px}
+  .login-box{width:calc(100vw - 32px);max-width:360px;padding:22px}
+  .card-body{padding:14px}
+  .card-head{padding:12px 14px}
+}
+@media (max-width: 480px) {
+  .stats-grid{gap:8px}
+  .stat-card{padding:12px}
+  .stat-value{font-size:20px}
+  .content{padding:10px}
+  .topbar{padding:10px 12px}
+  .bottom-nav-item{font-size:9px;padding:6px 4px}
+  .bottom-nav-item i{font-size:18px}
+  .tab{padding:8px 10px;font-size:10px}
+}
+@media (min-width: 769px) and (max-width: 1100px) {
+  .sidebar{width:200px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .proj-grid{grid-template-columns:repeat(2,1fr)}
+  .detail-panel{width:300px}
+}
+</style>
+</head>
+<body>
+
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon"><i class="ti ti-wave-square"></i></div>
+      <div><div class="login-title">AV Install Pro</div><div class="login-sub">Aanmelden bij uw account</div></div>
+    </div>
+    <div class="login-err" id="login-err"></div>
+    <div class="login-field"><label>E-mailadres</label><input class="inp" type="email" id="login-email" placeholder="naam@bedrijf.be" autocomplete="email"></div>
+    <div class="login-field"><label>Wachtwoord</label><input class="inp" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="btn btn-primary" style="justify-content:center;padding:11px" onclick="doLogin()" id="login-btn">
+      <i class="ti ti-login"></i> Aanmelden
+    </button>
+    <div class="login-toggle" id="login-toggle-text">Nog geen account? <a onclick="toggleAuthMode()">Registreren</a></div>
+    <div style="font-size:10px;color:var(--m2);text-align:center;padding-top:4px;border-top:1px solid var(--b)">
+      Vul uw Supabase URL &amp; Anon Key in bij <code style="font-family:var(--mono);color:var(--a)">SUPABASE_CONFIG</code>
+    </div>
+  </div>
+</div>
+
+<div class="loading-overlay hidden" id="loading-overlay">
+  <div class="spinner"></div><span id="loading-msg">Bezig...</span>
+</div>
+
+<div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
+<div class="app" id="app-root" style="display:none">
+
+  <!-- ══ SIDEBAR ══ -->
+  <div class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon"><i class="ti ti-wave-square"></i></div>
+      <div>
+        <div class="sb-logo-text">AV Install Pro</div>
+        <div class="sb-logo-sub">Field Tool v2.4</div>
+      </div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-section">
+        <div class="sb-section-label">Navigatie</div>
+        <div class="nav-item active" onclick="showView('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Dashboard <span class="nav-badge">12</span></div>
+        <div class="nav-item" onclick="showView('projects',this)"><i class="ti ti-folder"></i> Projecten</div>
+        <div class="nav-item" onclick="showView('import',this)"><i class="ti ti-table-import"></i> Excel Import</div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-section-label">Rapporten</div>
+        <div class="nav-item" onclick="showView('pdf',this)"><i class="ti ti-file-type-pdf"></i> PDF Export</div>
+        <div class="nav-item" onclick="showView('signature',this)"><i class="ti ti-signature"></i> Handtekeningen</div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-section-label">Beheer</div>
+        <div class="nav-item"><i class="ti ti-users"></i> Team</div>
+        <div class="nav-item"><i class="ti ti-settings"></i> Instellingen</div>
+      </div>
+    </div>
+    <div class="sb-user">
+      <div class="user-av">LV</div>
+      <div style="flex:1;min-width:0">
+        <div class="user-name">Lars Vermeersch</div>
+        <div class="user-role">Senior Technieker</div>
+      </div>
+      <button onclick="doLogout()" title="Afmelden" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;color:var(--m);display:flex;align-items:center"><i class="ti ti-dots-vertical" style="font-size:16px"></i></button>
+    </div>
+  </div>
+
+  <!-- ══ MAIN ══ -->
+  <div class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div id="view-dashboard" class="view-wrap" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="topbar">
+        <button class="btn-hamburger" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
+        <div><div class="tb-title">Dashboard</div></div>
+        <div class="tb-right">
+          <div class="search-box"><i class="ti ti-search"></i><input type="text" placeholder="Zoek project, klant, ref..."></div>
+          <button class="mobile-search-btn" onclick="toggleMobileSearch()"><i class="ti ti-search"></i></button>
+          <button class="btn btn-primary" onclick="openNewProject()"><i class="ti ti-plus"></i> <span class="btn-label">Nieuw project</span></button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:var(--a)"></span>Actief</div><div class="stat-value" style="color:var(--a)">7</div><div class="stat-delta delta-up">↑ 2 deze week</div></div>
+          <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:var(--am)"></span>Handtekening</div><div class="stat-value" style="color:var(--am)">3</div><div class="stat-delta">Wacht op klant</div></div>
+          <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:var(--g)"></span>Afgerond</div><div class="stat-value" style="color:var(--g)">41</div><div class="stat-delta delta-up">↑ 8 deze maand</div></div>
+          <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:var(--m)"></span>Draft</div><div class="stat-value" style="color:var(--m)">2</div><div class="stat-delta">Niet gestart</div></div>
+        </div>
+        <div class="filters">
+          <button class="filter-btn active" onclick="filterProjects('alle',this)">Alle</button>
+          <button class="filter-btn" onclick="filterProjects('active',this)">Actief</button>
+          <button class="filter-btn" onclick="filterProjects('pending',this)">Handtekening</button>
+          <button class="filter-btn" onclick="filterProjects('done',this)">Afgerond</button>
+          <button class="filter-btn" onclick="filterProjects('draft',this)">Draft</button>
+          <div class="filter-sep">
+            <button class="btn btn-ghost btn-sm"><i class="ti ti-sort-ascending"></i> Datum</button>
+          </div>
+        </div>
+        <div class="proj-grid" id="proj-grid"></div>
+      </div>
+    </div>
+
+    <!-- ── PROJECTS DETAIL (with panel) ── -->
+    <div id="view-projects" class="view-wrap" style="display:none;flex:1;overflow:hidden;flex-direction:row">
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+        <div class="topbar">
+          <button class="btn-hamburger" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
+          <div><div class="tb-title">Projecten</div></div>
+          <div class="tb-right">
+            <div class="search-box"><i class="ti ti-search"></i><input type="text" placeholder="Zoek..."></div>
+            <button class="mobile-search-btn" onclick="toggleMobileSearch()"><i class="ti ti-search"></i></button>
+            <button class="btn btn-primary" onclick="openNewProject()"><i class="ti ti-plus"></i> <span class="btn-label">Nieuw</span></button>
+          </div>
+        </div>
+        <div class="content"><div class="proj-grid" id="proj-grid2"></div></div>
+      </div>
+      <div class="detail-panel" id="detail-panel" style="display:none">
+        <div class="dp-header">
+          <div class="dp-title" id="dp-title">Project detail</div>
+          <button style="background:none;border:none;cursor:pointer;color:var(--m)" onclick="closeDetail()"><i class="ti ti-x" style="font-size:16px"></i></button>
+        </div>
+        <div class="tab-row">
+          <div class="tab active" onclick="switchTab('info',this)">Info</div>
+          <div class="tab" onclick="switchTab('rooms',this)">Zalen</div>
+          <div class="tab" onclick="switchTab('checklist',this)">Checklist</div>
+          <div class="tab" onclick="switchTab('photos',this)">Foto's</div>
+        </div>
+        <div class="dp-body" id="dp-body"></div>
+      </div>
+    </div>
+
+    <!-- ── EXCEL IMPORT ── -->
+    <div id="view-import" class="view-wrap" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="topbar">
+        <button class="btn-hamburger" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
+        <div><div class="tb-title">Excel Import <span class="tb-sub">— Materiaallijst</span></div></div>
+        <div class="tb-right">
+          <button class="btn btn-ghost btn-sm" onclick="downloadTemplate()"><i class="ti ti-download"></i> <span class="btn-label">Template</span></button>
+          <button class="btn btn-primary btn-sm" id="btn-import-final" onclick="finalImport()" disabled><i class="ti ti-check"></i> <span class="btn-label">Importeer</span></button>
+        </div>
+      </div>
+      <div class="step-indicator" id="import-steps">
+        <div class="step-dot s-active" id="imp-sd1">1</div>
+        <span class="step-lbl s-active" id="imp-sl1">Bestand uploaden</span>
+        <div class="step-line"></div>
+        <div class="step-dot" id="imp-sd2">2</div>
+        <span class="step-lbl" id="imp-sl2">Kolommen koppelen</span>
+        <div class="step-line"></div>
+        <div class="step-dot" id="imp-sd3">3</div>
+        <span class="step-lbl" id="imp-sl3">Valideren & importeren</span>
+      </div>
+      <div class="content" id="import-content">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+
+    <!-- ── PDF EXPORT ── -->
+    <div id="view-pdf" class="view-wrap" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="topbar">
+        <button class="btn-hamburger" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
+        <div><div class="tb-title">PDF Export <span class="tb-sub">— Opleveringsrapport</span></div></div>
+        <div class="tb-right">
+          <button class="btn btn-ghost btn-sm" id="btn-pdf-preview" onclick="togglePDFPreview()"><i class="ti ti-eye"></i> <span class="btn-label">Voorbeeld</span></button>
+          <button class="btn btn-primary btn-sm" onclick="exportPDF()"><i class="ti ti-file-type-pdf"></i> <span class="btn-label">PDF</span></button>
+        </div>
+      </div>
+      <div class="content" id="pdf-content">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+
+    <!-- ── SIGNATURE ── -->
+    <div id="view-signature" class="view-wrap" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="topbar">
+        <button class="btn-hamburger" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
+        <div><div class="tb-title">Handtekeningen</div></div>
+        <div class="tb-right">
+          <span class="badge" id="sig-status-badge" style="padding:5px 12px;font-size:11px">Wacht op handtekening</span>
+        </div>
+      </div>
+      <div class="content" id="sig-content">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ══ BOTTOM NAV (mobile) ══ -->
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="bottom-nav-item active" id="bn-dashboard" onclick="showView('dashboard',null);setBottomNav('bn-dashboard')">
+    <i class="ti ti-layout-dashboard"></i>
+    <span>Dashboard</span>
+    <span class="bottom-nav-badge" id="bn-badge">12</span>
+  </div>
+  <div class="bottom-nav-item" id="bn-projects" onclick="showView('projects',null);setBottomNav('bn-projects')">
+    <i class="ti ti-folder"></i>
+    <span>Projecten</span>
+  </div>
+  <div class="bottom-nav-item" id="bn-import" onclick="showView('import',null);setBottomNav('bn-import')">
+    <i class="ti ti-table-import"></i>
+    <span>Import</span>
+  </div>
+  <div class="bottom-nav-item" id="bn-pdf" onclick="showView('pdf',null);setBottomNav('bn-pdf')">
+    <i class="ti ti-file-type-pdf"></i>
+    <span>PDF</span>
+  </div>
+  <div class="bottom-nav-item" id="bn-signature" onclick="showView('signature',null);setBottomNav('bn-signature')">
+    <i class="ti ti-signature"></i>
+    <span>Tekenen</span>
+  </div>
+</nav>
+</div>
+
+<div class="toast" id="toast"><i class="ti ti-circle-check" style="font-size:15px"></i><span id="toast-msg"></span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// ════════════════════════════════════════════════
+//  ⚙️  SUPABASE CONFIGURATIE  ← HIER INVULLEN
+// ════════════════════════════════════════════════
+const SUPABASE_CONFIG = {
+  url: 'https://ztdbqapdtsbedrmmjeac.supabase.co',
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZGJxYXBkdHNiZWRybW1qZWFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0MDE2MTksImV4cCI6MjA5NDk3NzYxOX0.MICI9s73NQoQl8fUSOl7Mj8tEYqVnDyZPSPGX9YyF3w'
+};
+// Initialize Supabase client
+const db = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
+console.log('Supabase client OK:', !!db);
+
+// Direct REST API helper as fallback
+const SUPA_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SUPABASE_CONFIG.key,
+  'Authorization': 'Bearer ' + SUPABASE_CONFIG.key,
+  'Prefer': 'return=minimal'
+};
+
+async function supaFetch(table, options={}) {
+  const { method='GET', filter='', body=null, select='*', order='created_at.desc' } = options;
+  let url = `${SUPABASE_CONFIG.url}/rest/v1/${table}`;
+  if(method==='GET') {
+    url += `?select=${select}`;
+    if(filter) url += '&' + filter;
+    if(order) url += '&order=' + order;
+  } else if(filter) {
+    url += '?' + filter;
+  }
+  const headers = {...SUPA_HEADERS};
+  if(SUPA_TOKEN) headers['Authorization'] = 'Bearer ' + SUPA_TOKEN;
+  const res = await fetch(url, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if(!res.ok) { const err = await res.text(); throw new Error(err); }
+  if(method==='GET') return await res.json();
+  return true;
+}
+
+let SUPA_TOKEN = null;
+
+// ════════════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════════════
+let currentUser = null, currentProfile = null, isRegisterMode = false;
+
+function toggleAuthMode() {
+  isRegisterMode = !isRegisterMode;
+  document.getElementById('login-btn').innerHTML = isRegisterMode
+    ? '<i class="ti ti-user-plus"></i> Registreren'
+    : '<i class="ti ti-login"></i> Aanmelden';
+  document.getElementById('login-toggle-text').innerHTML = isRegisterMode
+    ? 'Al een account? <a onclick="toggleAuthMode()">Aanmelden</a>'
+    : 'Nog geen account? <a onclick="toggleAuthMode()">Registreren</a>';
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if(!email || !pass) { showLoginErr('Vul e-mail en wachtwoord in.'); return; }
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px"></div> Bezig...';
+  let result;
+  if(isRegisterMode) {
+    result = await db.auth.signUp({ email, password:pass, options:{ data:{ naam:email.split('@')[0], initialen:email.substring(0,2).toUpperCase(), rol:'technieker' } } });
+    if(!result.error) { showLoginErr('Bevestig uw e-mail en meld u aan.'); btn.disabled=false; btn.innerHTML='<i class="ti ti-login"></i> Aanmelden'; return; }
+  } else {
+    result = await db.auth.signInWithPassword({ email, password:pass });
+  }
+  if(result.error) {
+    showLoginErr(result.error.message==='Invalid login credentials'?'Verkeerd e-mail of wachtwoord.':result.error.message);
+    btn.disabled=false;
+    btn.innerHTML=isRegisterMode?'<i class="ti ti-user-plus"></i> Registreren':'<i class="ti ti-login"></i> Aanmelden';
+  }
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById('login-err');
+  el.textContent = msg; el.classList.add('show');
+}
+
+async function doLogout() {
+  try { await db.auth.signOut(); } catch(e) { console.warn('signOut error:', e); }
+  sigState = { activeParty:'klant', sigs:{klant:null,technieker:null}, sigNames:{klant:'',technieker:''}, sigFuncties:{klant:'',technieker:''}, paths:[], drawing:false, currentPath:[], penColor:'#1a1a2e', penThick:2 };
+  const overlay = document.getElementById('login-overlay');
+  const appRoot = document.getElementById('app-root');
+  overlay.style.opacity = '';
+  overlay.style.pointerEvents = '';
+  overlay.classList.remove('hidden');
+  appRoot.style.display = 'none';
+  toast('Afgemeld ✓');
+}
+
+function initAuth() {
+  console.log('initAuth aangeroepen');
+  db.auth.onAuthStateChange(async (event, session) => {
+    console.log('Auth state change:', event, !!session);
+    if(session?.user) {
+      currentUser = session.user;
+      SUPA_TOKEN = session.access_token;
+      console.log('Token captured:', !!SUPA_TOKEN);
+      // Hide login overlay FIRST, then load data
+      document.getElementById('login-overlay').classList.add('hidden');
+      document.getElementById('app-root').style.display = 'flex';
+      try { await loadProfile(); } catch(e) { console.warn('Profiel laden mislukt:', e); }
+      try { await initApp(); } catch(e) { console.warn('App init mislukt:', e); }
+    } else {
+      currentUser = null; currentProfile = null;
+      document.getElementById('login-overlay').classList.remove('hidden');
+      document.getElementById('app-root').style.display = 'none';
+    }
+  });
+
+  // Check existing session
+  db.auth.getSession().then(async ({ data: { session } }) => {
+    if (!session) {
+      document.getElementById('login-overlay').classList.remove('hidden');
+    } else {
+      console.log('Bestaande sessie gevonden, token:', !!session.access_token);
+      SUPA_TOKEN = session.access_token;
+      currentUser = session.user;
+      // Small delay to ensure token is set
+      await new Promise(r => setTimeout(r, 100));
+      document.getElementById('login-overlay').classList.add('hidden');
+      document.getElementById('app-root').style.display = 'flex';
+      try { await loadProfile(); } catch(e) { console.warn('Profiel laden mislukt:', e); }
+      try { await initApp(); } catch(e) { console.warn('App init mislukt:', e); }
+    }
+  });
+}
+
+async function loadProfile() {
+  const { data } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+  currentProfile = data;
+  if(data) {
+    const el = document.querySelector('.user-name'); if(el) el.textContent = data.naam || currentUser.email;
+    const re = document.querySelector('.user-role'); if(re) re.textContent = data.rol || 'Technieker';
+    const av = document.querySelector('.user-av');   if(av) av.textContent = data.initialen || currentUser.email.substring(0,2).toUpperCase();
+  }
+}
+
+// ════════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════════
+let PROJECTS = [];
+let DEVICES_BY_PROJECT = {};
+let CHECKLIST_ITEMS = [];
+
+const PROJECTS_DEMO = [
+  {id:'AV-2025-0847',title:'Ricoh Headquarters — Vergaderzalen',client:'Ricoh Belgium NV',endclient:'Ricoh HQ, Zaventem',address:'Humaniteitslaan 22, 1831 Diegem',contact:'Marc Dubois',phone:'+32 2 123 45 67',email:'m.dubois@ricoh.com',date:'18 jan 2025',technicians:['LV','JD'],status:'active',progress:75,rooms:['Board Room','Conf A','Conf B','Huddle 1','Huddle 2','Tech. ruimte'],devices:24,description:'Volledige AV-renovatie van 6 vergaderzalen.',openpoints:['Firmware update Board Room scherm','Kabelgoten afwerken Conf B'],accent:'var(--a)'},
+  {id:'AV-2025-0831',title:'UGent Auditorium — AV Renovatie',client:'Universiteit Gent',endclient:'UGent Campus Sterre, Gent',address:'Krijgslaan 281, 9000 Gent',contact:'Sofie Declercq',phone:'+32 9 264 40 01',email:'s.declercq@ugent.be',date:'14 jan 2025',technicians:['MK'],status:'pending',progress:100,rooms:['Aud 1','Aud 2','Regie'],devices:18,description:'Renovatie auditorium AV-systeem.',openpoints:[],accent:'var(--am)'},
+  {id:'AV-2025-0819',title:'Sheraton Brussel — Events',client:'Sheraton Grand Hotel',endclient:'Sheraton Brussels Hotel',address:'Place Rogier 3, 1210 Brussel',contact:'Thomas Pieters',phone:'+32 2 224 31 11',email:'t.pieters@sheraton.be',date:'8 jan 2025',technicians:['LV','TP','AN'],status:'done',progress:100,rooms:['Ballroom','Salon A','Salon B','Salon C','Foyer','Regie','Backstage','Bar'],devices:36,description:'Volledige AV-installatie events faciliteiten hotel.',openpoints:[],accent:'var(--g)'},
+  {id:'AV-2025-0856',title:'Proximus Campus — Videowall',client:'Proximus NV',endclient:'Proximus HQ Campus',address:'Bd du Roi Albert II 27, 1030 Brussel',contact:'Julie Maes',phone:'+32 2 202 41 11',email:'j.maes@proximus.be',date:'22 jan 2025',technicians:['JD'],status:'draft',progress:0,rooms:['Lobby','Innovation Hub'],devices:12,description:'LED videowall installatie in lobby en innovation hub.',openpoints:['Materiaal bestelling bevestigen','Toegangsbewijzen aanvragen'],accent:'var(--m)'}
+];
+const CHECKLIST_ITEMS_DEMO = [
+  {id:1,text:'Scherm(en) getest',required:true,checked:true},
+  {id:2,text:'Audio systeem getest',required:true,checked:true},
+  {id:3,text:'Netwerk verbinding OK',required:true,checked:true},
+  {id:4,text:'Touch functionaliteit OK',required:false,checked:true},
+  {id:5,text:'Camera en videoconferencing getest',required:false,checked:true},
+  {id:6,text:'Firmware geüpdatet',required:true,checked:false},
+  {id:7,text:'Bekabeling afgewerkt',required:false,checked:false},
+  {id:8,text:'Klant uitleg gegeven',required:true,checked:true}
+];
+
+function showLoading(msg='Bezig...') { document.getElementById('loading-overlay').classList.remove('hidden'); document.getElementById('loading-msg').textContent=msg; }
+function hideLoading() { document.getElementById('loading-overlay').classList.add('hidden'); }
+
+async function loadProjecten() {
+  showLoading('Projecten laden...');
+  try {
+    const data = await supaFetch('projecten', {order:'created_at.desc'});
+    hideLoading();
+    console.log('Projecten geladen:', data?.length);
+    if(data && data.length >= 0) {
+      PROJECTS = data.map(p=>({...p, date:p.datum, rooms:p.rooms||[], openpoints:p.openpoints||[], technicians:p.technicians||[], accent:p.accent||'var(--a)'}));
+      setSyncDot('ok'); return true;
+    }
+    setSyncDot('offline'); return false;
+  } catch(e) {
+    hideLoading();
+    console.error('loadProjecten fout:', e);
+    setSyncDot('offline'); return false;
+  }
+}
+
+async function loadChecklistVoorProject(projectId) {
+  try {
+    const data = await supaFetch('checklist_items', {filter:`project_id=eq.${projectId}`, order:'volgorde.asc'});
+    CHECKLIST_ITEMS = (!data?.length) ? CHECKLIST_ITEMS_DEMO.map(i=>({...i})) : data.map(d=>({id:d.id,text:d.tekst,required:d.verplicht,checked:d.gecheckt}));
+  } catch(e) {
+    CHECKLIST_ITEMS = CHECKLIST_ITEMS_DEMO.map(i=>({...i}));
+  }
+}
+
+async function loadToestellen(projectId) {
+  try {
+    const data = await supaFetch('toestellen', {filter:`project_id=eq.${projectId}`, order:'created_at.asc'});
+    if(data) DEVICES_BY_PROJECT[projectId] = data.map(d=>({art:d.artikelnummer,name:d.naam,sn:d.serienummer,qty:d.aantal,room:d.locatie,note:d.opmerking}));
+  } catch(e) { console.warn('Toestellen laden fout:', e); }
+}
+
+async function initApp() {
+  await loadProjecten();
+  renderProjectGrid('proj-grid');
+  updateDashboardStats();
+  // Realtime updates
+  db.channel('projecten').on('postgres_changes',{event:'*',schema:'public',table:'projecten'},()=>{
+    loadProjecten().then(()=>{ renderProjectGrid('proj-grid'); renderProjectGrid('proj-grid2'); updateDashboardStats(); setSyncDot('ok'); });
+  }).subscribe();
+}
+
+function setSyncDot(state) {
+  const dot = document.getElementById('sync-dot');
+  if(!dot) return;
+  dot.className = 'sync-dot'+(state==='offline'?' offline':state==='syncing'?' syncing':'');
+  dot.title = {ok:'Verbonden met Supabase',offline:'Offline — demo data',syncing:'Synchroniseren...'}[state]||'';
+}
+
+function updateDashboardStats() {
+  const counts = {active:0,pending:0,done:0,draft:0};
+  PROJECTS.forEach(p=>{ if(counts[p.status]!==undefined) counts[p.status]++; });
+  const vals = document.querySelectorAll('.stat-value');
+  if(vals[0]) vals[0].textContent=counts.active;
+  if(vals[1]) vals[1].textContent=counts.pending;
+  if(vals[2]) vals[2].textContent=counts.done;
+  if(vals[3]) vals[3].textContent=counts.draft;
+  const badge = document.querySelector('.nav-badge');
+  if(badge) badge.textContent=PROJECTS.length;
+  const bnBadge = document.getElementById('bn-badge');
+  if(bnBadge) bnBadge.textContent=PROJECTS.length;
+}
+
+// ════════════════
+// NAVIGATION
+// ════════════════
+function showView(id, navEl) {
+  document.querySelectorAll('.view-wrap').forEach(v=>v.style.display='none');
+  const el = document.getElementById('view-'+id);
+  if(el) el.style.display='flex';
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(navEl) navEl.classList.add('active');
+  if(id==='dashboard') renderProjectGrid('proj-grid');
+  if(id==='projects') renderProjectGrid('proj-grid2');
+  if(id==='import') initImport();
+  if(id==='pdf') initPDF();
+  if(id==='signature') initSignature();
+  // Mobile: close sidebar and sync bottom nav
+  closeSidebar();
+  const bnMap = {dashboard:'bn-dashboard',projects:'bn-projects',import:'bn-import',pdf:'bn-pdf',signature:'bn-signature'};
+  if(bnMap[id]) setBottomNav(bnMap[id]);
+}
+
+function toast(msg, duration=3000) {
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),duration);
+}
+
+// ════════════════
+// PROJECT GRID
+// ════════════════
+let activeFilter = 'alle';
+function filterProjects(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderProjectGrid('proj-grid');
+}
+
+function renderProjectGrid(gridId) {
+  const grid = document.getElementById(gridId);
+  if(!grid) return;
+  let projs = activeFilter==='alle' ? PROJECTS : PROJECTS.filter(p=>p.status===activeFilter);
+  if(!projs.length) {
+    grid.innerHTML='<div style="padding:40px;text-align:center;color:var(--m);font-size:13px"><i class="ti ti-folder-off" style="font-size:32px;display:block;margin-bottom:8px"></i>Geen projecten gevonden</div>';
+    return;
+  }
+  grid.innerHTML = projs.map(p=>`
+    <div class="proj-card" style="--accent:${p.accent}" onclick="openDetail('${p.id}')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+        <div style="min-width:0">
+          <div class="pc-ref">${p.id}</div>
+          <div class="pc-title">${p.title}</div>
+          <div class="pc-client">${p.client}</div>
+        </div>
+        <span class="badge badge-${p.status}" style="margin-left:8px;flex-shrink:0">${statusLabel(p.status)}</span>
+      </div>
+      <div class="pc-meta">
+        <div class="pc-meta-item"><i class="ti ti-calendar"></i>${p.date||p.datum||''}</div>
+        <div class="pc-meta-item"><i class="ti ti-door"></i>${(p.rooms||[]).length} zalen</div>
+        <div class="pc-meta-item"><i class="ti ti-device-tv"></i>${p.devices||0} toestellen</div>
+      </div>
+      <div class="progress-label"><span>Checklist</span><span>${p.progress||0}%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${p.progress||0}%;background:${(p.progress||0)===100?'var(--g)':'var(--a)'}"></div></div>
+      <div class="pc-rooms">${(p.rooms||[]).slice(0,3).map(r=>`<span class="room-pill-sm">${r}</span>`).join('')}${(p.rooms||[]).length>3?`<span class="room-pill-sm">+${(p.rooms||[]).length-3}</span>`:''}</div>
+      <div class="pc-footer">
+        <div class="tech-stack">${(p.technicians||[]).map((t,i)=>`<div class="tech-av" style="background:${['#4f8ef7','#a78bfa','#34d399','#f87171'][i%4]}">${t}</div>`).join('')}</div>
+        <div class="pc-actions">
+          <button class="pc-action" title="Handtekening" onclick="event.stopPropagation();openSignatureForProject('${p.id}')"><i class="ti ti-signature"></i></button>
+          <button class="pc-action" title="PDF" onclick="event.stopPropagation();openPDFForProject('${p.id}')"><i class="ti ti-file-type-pdf"></i></button>
+          <button class="pc-action" title="Status" onclick="event.stopPropagation();editProjectStatus('${p.id}')"><i class="ti ti-pencil"></i></button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function statusLabel(s){return{draft:'Draft',active:'Actief',pending:'Handtekening',done:'Afgerond'}[s]||s}
+
+// ════════════════
+// DETAIL PANEL
+// ════════════════
+let currentProject = null;
+function openDetail(id) {
+  currentProject = PROJECTS.find(p=>p.id===id);
+  if(!currentProject) return;
+  const panel = document.getElementById('detail-panel');
+  panel.style.display='flex'; panel.style.flexDirection='column';
+  document.getElementById('dp-title').textContent=currentProject.client+' · '+currentProject.id;
+  showView('projects', document.querySelectorAll('.nav-item')[1]);
+  loadChecklistVoorProject(id).then(()=>switchTab('info',document.querySelector('.tab')));
+  loadToestellen(id);
+}
+
+function closeDetail() { document.getElementById('detail-panel').style.display='none'; }
+
+function switchTab(tabId, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const body = document.getElementById('dp-body');
+  if(!currentProject) return;
+  const p = currentProject;
+  if(tabId==='info') {
+    body.innerHTML=`
+      <div class="field"><div class="field-label">Klantnaam</div><div class="field-val">${p.client}</div></div>
+      <div class="field"><div class="field-label">Eindklant</div><div class="field-val">${p.endclient||''}</div></div>
+      <div class="field"><div class="field-label">Adres</div><div class="field-muted">${p.address||''}</div></div>
+      <div class="inp-grid" style="margin-bottom:14px">
+        <div><div class="field-label">Datum</div><div class="field-val">${p.date||p.datum||''}</div></div>
+        <div><div class="field-label">Referentie</div><div class="field-val" style="font-family:var(--mono);font-size:11px">${p.id}</div></div>
+      </div>
+      <div class="field"><div class="field-label">Contactpersoon</div><div class="field-val">${p.contact||''}</div></div>
+      <div class="field"><div class="field-label">Telefoon / E-mail</div><div class="field-muted">${p.phone||''} · ${p.email||''}</div></div>
+      <div class="divider"></div>
+      <div class="field"><div class="field-label">Beschrijving</div><div class="field-muted" style="line-height:1.6">${p.description||''}</div></div>
+      ${(p.openpoints||[]).length?`<div class="field"><div class="field-label">Openstaande punten</div>${(p.openpoints||[]).map(op=>`<div style="font-size:12px;color:var(--am);margin-bottom:4px">→ ${op}</div>`).join('')}</div>`:''}
+      <div class="divider"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" onclick="openSignatureForProject('${p.id}')"><i class="ti ti-signature"></i> Handtekening</button>
+        <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center" onclick="openPDFForProject('${p.id}')"><i class="ti ti-file-type-pdf"></i> PDF</button>
+      </div>
+      <div style="margin-top:8px">
+        <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center" onclick="editProjectStatus('${p.id}')"><i class="ti ti-refresh"></i> Status wijzigen</button>
+      </div>`;
+  }
+  if(tabId==='rooms') {
+    const rooms=p.rooms||[]; const colors=['var(--g)','var(--a)','var(--am)','var(--pu)','var(--r)','var(--m)'];
+    const devices = DEVICES_BY_PROJECT[p.id] || [];
+    body.innerHTML=`<div class="section-head">${rooms.length} Zalen</div>`+rooms.map((r,i)=>{
+      const roomDevices = devices.filter(d=>d.room===r);
+      return `<div class="room-item" style="flex-direction:column;align-items:flex-start;gap:6px;cursor:default">
+        <div style="display:flex;align-items:center;gap:8px;width:100%">
+          <div class="room-icon" style="background:${colors[i%6]}22;color:${colors[i%6]}"><i class="ti ti-door"></i></div>
+          <div class="room-info" style="flex:1">
+            <div class="room-name">${r}</div>
+            <div class="room-count">${roomDevices.length} toestel${roomDevices.length!==1?'s':''}</div>
+          </div>
+        </div>
+        ${roomDevices.length ? `<div style="width:100%;padding-left:38px">
+          ${roomDevices.map(d=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:0.5px solid var(--b);font-size:11px">
+            <span style="color:var(--t2)">${d.name}</span>
+            <span style="color:var(--m);font-family:var(--mono);font-size:10px">${d.sn||d.art||''}</span>
+          </div>`).join('')}
+        </div>` : `<div style="padding-left:38px;font-size:11px;color:var(--m2)">Geen materiaal geregistreerd</div>`}
+      </div>`;
+    }).join('')+`
+    <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:8px" onclick="addRoomToProject('${p.id}')"><i class="ti ti-plus"></i> Zaal toevoegen</button>`;
+  }
+  if(tabId==='checklist') {
+    const done=CHECKLIST_ITEMS.filter(c=>c.checked).length;
+    body.innerHTML=`<div class="section-head">Checklist</div>`+CHECKLIST_ITEMS.map(item=>`
+      <div class="check-item">
+        <div class="check-box${item.checked?' checked':''}" onclick="toggleCheck('${item.id}',this)"></div>
+        <span class="check-text${item.checked?' done':''}" id="ct-${item.id}">${item.text}</span>
+        ${item.required?`<span class="check-req">Verplicht</span>`:''}
+      </div>`).join('')+`<div style="margin-top:12px" class="notice">${done}/${CHECKLIST_ITEMS.length} items voltooid</div>`;
+  }
+  if(tabId==='photos') {
+    const rooms = p.rooms||[];
+    const photos = PHOTOS_BY_PROJECT[p.id] || {};
+    body.innerHTML = `
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center" onclick="openCameraForRoom('${p.id}',null,true)">
+          <i class="ti ti-camera"></i> Camera
+        </button>
+        <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" onclick="openCameraForRoom('${p.id}',null,false)">
+          <i class="ti ti-photo"></i> Galerij
+        </button>
+      </div>
+      <input type="file" id="photo-upload-main" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(event,currentPhotoRoom)">
+      <input type="file" id="photo-upload-gallery" accept="image/*" style="display:none" onchange="handlePhotoUpload(event,currentPhotoRoom)">
+      ${rooms.length ? rooms.map(r => {
+        const roomPhotos = photos[r] || [];
+        return `<div style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em">${r}</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost btn-sm" onclick="openCameraForRoom('${p.id}','${r}',true)" style="padding:4px 8px;font-size:10px"><i class="ti ti-camera"></i> Camera</button>
+              <button class="btn btn-ghost btn-sm" onclick="openCameraForRoom('${p.id}','${r}',false)" style="padding:4px 8px;font-size:10px"><i class="ti ti-photo"></i> Galerij</button>
+            </div>
+          </div>
+          <div class="photo-grid" id="photos-${r.replace(/[^a-z0-9]/gi,'_')}">
+            ${roomPhotos.map(src=>`<div class="photo-thumb" style="padding:0;overflow:hidden" onclick="viewPhoto('${src}')"><img src="${src}" style="width:100%;height:100%;object-fit:cover"></div>`).join('')}
+            ${roomPhotos.length===0?`<div style="grid-column:1/-1;padding:12px;text-align:center;color:var(--m2);font-size:11px">Nog geen foto's voor deze zaal</div>`:''}
+          </div>
+        </div>`;
+      }).join('') : `<div style="padding:20px;text-align:center;color:var(--m);font-size:12px">Voeg eerst zalen toe aan dit project</div>`}
+    `;
+  }
+}
+
+function addRoomToProject(projectId) {
+  const naam = prompt('Naam van de zaal:');
+  if(!naam?.trim()) return;
+  const p = PROJECTS.find(pr=>pr.id===projectId);
+  if(!p) return;
+  p.rooms = [...(p.rooms||[]), naam.trim()];
+  supaFetch('projecten', {method:'PATCH', filter:`id=eq.${projectId}`, body:{rooms: p.rooms}})
+    .then(()=>toast(`Zaal "${naam.trim()}" toegevoegd ✓`))
+    .catch(()=>toast('Zaal lokaal toegevoegd'));
+  switchTab('rooms', document.querySelector('.tab.active'));
+}
+
+async function editProjectStatus(projectId) {
+  const statuses = ['draft','active','pending','done'];
+  const labels = {draft:'Draft',active:'Actief',pending:'Handtekening',done:'Afgerond'};
+  const p = PROJECTS.find(pr=>pr.id===projectId);
+  if(!p) return;
+  const nieuw = statuses[(statuses.indexOf(p.status)+1)%statuses.length];
+  showLoading('Status bijwerken...');
+  try {
+    await supaFetch('projecten', {method:'PATCH', filter:`id=eq.${projectId}`, body:{status:nieuw}});
+  } catch(e) { hideLoading(); toast('Fout: '+e.message); return; }
+  hideLoading();
+  p.status = nieuw;
+  toast(`Status → ${labels[nieuw]} ✓`);
+  renderProjectGrid('proj-grid'); renderProjectGrid('proj-grid2');
+  if(currentProject?.id===projectId) openDetail(projectId);
+}
+
+// Photo storage per project per room
+let PHOTOS_BY_PROJECT = {};
+let currentPhotoRoom = null;
+
+function openCameraForRoom(projectId, room, useCamera) {
+  currentPhotoRoom = room;
+  const input = useCamera
+    ? document.getElementById('photo-upload-main')
+    : document.getElementById('photo-upload-gallery');
+  if(!input) return;
+  // Set capture attribute for camera
+  if(useCamera) input.setAttribute('capture','environment');
+  else input.removeAttribute('capture');
+  input.dataset.projectId = projectId;
+  input.click();
+}
+
+function viewPhoto(src) {
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML = `<img src="${src}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px">
+    <button onclick="this.parentElement.remove()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;cursor:pointer;color:#fff;font-size:24px;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center">×</button>`;
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+function handlePhotoUpload(e, room) {
+  const file = e.target.files[0]; if(!file) return;
+  const projectId = e.target.dataset.projectId || currentProject?.id;
+  if(!projectId) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const src = ev.target.result;
+    // Store locally
+    if(!PHOTOS_BY_PROJECT[projectId]) PHOTOS_BY_PROJECT[projectId] = {};
+    const roomKey = room || 'Algemeen';
+    if(!PHOTOS_BY_PROJECT[projectId][roomKey]) PHOTOS_BY_PROJECT[projectId][roomKey] = [];
+    PHOTOS_BY_PROJECT[projectId][roomKey].push(src);
+    // Update grid in UI
+    const gridId = 'photos-' + roomKey.replace(/[^a-z0-9]/gi,'_');
+    const grid = document.getElementById(gridId);
+    if(grid) {
+      // Remove empty message
+      grid.querySelectorAll('div').forEach(d=>d.remove());
+      const div = document.createElement('div');
+      div.className='photo-thumb'; div.style.cssText='padding:0;overflow:hidden';
+      div.onclick = () => viewPhoto(src);
+      const img = document.createElement('img');
+      img.src=src; img.style='width:100%;height:100%;object-fit:cover';
+      div.appendChild(img); grid.appendChild(div);
+    }
+    toast('Foto toegevoegd ✓');
+    e.target.value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function toggleCheck(id, box) {
+  const item = CHECKLIST_ITEMS.find(c=>String(c.id)===String(id));
+  if(!item) return;
+  item.checked = !item.checked;
+  box.classList.toggle('checked',item.checked);
+  const label = document.getElementById('ct-'+id);
+  if(label) label.classList.toggle('done',item.checked);
+  const done = CHECKLIST_ITEMS.filter(c=>c.checked).length;
+  const notice = document.querySelector('.notice');
+  if(notice) notice.textContent=`${done}/${CHECKLIST_ITEMS.length} items voltooid`;
+  // Save to Supabase (UUID IDs only)
+  if(typeof id==='string' && id.includes('-') && id.length>20) {
+    await db.from('checklist_items').update({gecheckt:item.checked,gecheckt_door:currentUser?.id,gecheckt_op:new Date().toISOString()}).eq('id',id);
+    if(currentProject) {
+      const progress = Math.round((done/CHECKLIST_ITEMS.length)*100);
+      await db.from('projecten').update({progress}).eq('id',currentProject.id);
+      const p = PROJECTS.find(pr=>pr.id===currentProject.id); if(p) p.progress=progress;
+    }
+  }
+}
+
+function openNewProject() {
+  // Remove existing modal if any
+  document.getElementById('new-project-modal')?.remove();
+  const modal = document.createElement('div');
+  modal.id = 'new-project-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:5000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)';
+  modal.innerHTML = `
+    <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--rad-xl);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column">
+      <div style="padding:18px 20px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div style="font-size:14px;font-weight:600">Nieuw project aanmaken</div>
+        <button onclick="document.getElementById('new-project-modal').remove()" style="background:none;border:none;cursor:pointer;color:var(--m);font-size:20px;line-height:1;padding:4px">×</button>
+      </div>
+      <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="field"><div class="field-label">Referentie *</div><input class="inp" id="np-id" placeholder="AV-2025-0001" value="AV-2025-${String(Date.now()).slice(-4)}"></div>
+          <div class="field"><div class="field-label">Status</div>
+            <select class="inp" id="np-status">
+              <option value="draft">Draft</option>
+              <option value="active" selected>Actief</option>
+              <option value="pending">Handtekening</option>
+              <option value="done">Afgerond</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><div class="field-label">Projectnaam *</div><input class="inp" id="np-title" placeholder="Ricoh HQ — Vergaderzalen"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="field"><div class="field-label">Klant *</div><input class="inp" id="np-client" placeholder="Ricoh Belgium NV"></div>
+          <div class="field"><div class="field-label">Eindklant</div><input class="inp" id="np-endclient" placeholder="Ricoh HQ, Zaventem"></div>
+        </div>
+        <div class="field"><div class="field-label">Adres</div><input class="inp" id="np-address" placeholder="Humaniteitslaan 22, 1831 Diegem"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="field"><div class="field-label">Contactpersoon</div><input class="inp" id="np-contact" placeholder="Marc Dubois"></div>
+          <div class="field"><div class="field-label">Datum</div><input class="inp" id="np-datum" type="date" value="${new Date().toISOString().split('T')[0]}"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="field"><div class="field-label">Telefoon</div><input class="inp" id="np-phone" placeholder="+32 2 123 45 67"></div>
+          <div class="field"><div class="field-label">E-mail</div><input class="inp" id="np-email" placeholder="contact@bedrijf.be"></div>
+        </div>
+        <div class="field"><div class="field-label">Beschrijving</div><textarea class="inp" id="np-desc" rows="2" placeholder="Korte projectbeschrijving..." style="resize:vertical"></textarea></div>
+        <div class="field">
+          <div class="field-label">Techniekers (kommagescheiden)</div>
+          <input class="inp" id="np-techs" placeholder="LV, JD, MK">
+        </div>
+        <div class="field">
+          <div class="field-label">Zalen (kommagescheiden)</div>
+          <input class="inp" id="np-rooms" placeholder="Board Room, Conf A, Huddle 1">
+        </div>
+        <div style="display:flex;gap:8px;padding-top:4px">
+          <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="document.getElementById('new-project-modal').remove()">Annuleren</button>
+          <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="saveNewProject()"><i class="ti ti-check"></i> Opslaan</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  // Close on backdrop click
+  modal.addEventListener('click', e => { if(e.target === modal) modal.remove(); });
+}
+
+async function saveNewProject() {
+  const id = document.getElementById('np-id').value.trim();
+  const title = document.getElementById('np-title').value.trim();
+  const client = document.getElementById('np-client').value.trim();
+  if(!id || !title || !client) { toast('Vul referentie, naam en klant in'); return; }
+  
+  const rooms = document.getElementById('np-rooms').value.split(',').map(r=>r.trim()).filter(Boolean);
+  const techs = document.getElementById('np-techs').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const datum = document.getElementById('np-datum').value;
+  const datumNL = datum ? new Date(datum).toLocaleDateString('nl-BE',{day:'numeric',month:'short',year:'numeric'}) : '';
+  
+  const project = {
+    id, title, client,
+    endclient: document.getElementById('np-endclient').value.trim(),
+    address: document.getElementById('np-address').value.trim(),
+    contact: document.getElementById('np-contact').value.trim(),
+    phone: document.getElementById('np-phone').value.trim(),
+    email: document.getElementById('np-email').value.trim(),
+    datum: datumNL,
+    status: document.getElementById('np-status').value,
+    progress: 0,
+    rooms,
+    devices: 0,
+    description: document.getElementById('np-desc').value.trim(),
+    openpoints: [],
+    accent: 'var(--a)',
+    technicians: techs,
+    created_by: currentUser?.id
+  };
+
+  showLoading('Project opslaan...');
+  try {
+    await supaFetch('projecten', {method:'POST', body:project});
+    hideLoading();
+    toast('Project aangemaakt ✓');
+    document.getElementById('new-project-modal').remove();
+    // Reload all projects from Supabase to ensure consistency
+    await loadProjecten();
+    renderProjectGrid('proj-grid');
+    renderProjectGrid('proj-grid2');
+    updateDashboardStats();
+  } catch(e) {
+    hideLoading();
+    console.error('Project opslaan fout:', e);
+    // Add locally as fallback
+    PROJECTS.unshift({...project, date: datumNL});
+    renderProjectGrid('proj-grid');
+    renderProjectGrid('proj-grid2');
+    updateDashboardStats();
+    document.getElementById('new-project-modal')?.remove();
+    toast('Project lokaal opgeslagen (geen verbinding)');
+  }
+}
+
+// ════════════════
+// IMPORT (met Supabase)
+// ════════════════
+const IMPORT_COLS=['artikelnummer','productnaam','serienummer','aantal','locatie','opmerking'];
+const IMPORT_LABELS={artikelnummer:'Artikelnummer',productnaam:'Productnaam',serienummer:'Serienummer',aantal:'Aantal',locatie:'Locatie / Zaal',opmerking:'Opmerking'};
+const IMPORT_REQ=['artikelnummer','productnaam','aantal'];
+const IMPORT_ALIASES={'artikelnummer':'artikelnummer','article':'artikelnummer','art nr':'artikelnummer','sku':'artikelnummer','ref':'artikelnummer','referentie':'artikelnummer','productnaam':'productnaam','product':'productnaam','description':'productnaam','omschrijving':'productnaam','naam':'productnaam','name':'productnaam','serienummer':'serienummer','serial':'serienummer','sn':'serienummer','serialnumber':'serienummer','aantal':'aantal','qty':'aantal','quantity':'aantal','hoeveelheid':'aantal','locatie':'locatie','zaal':'locatie','room':'locatie','location':'locatie','ruimte':'locatie','opmerking':'opmerking','remark':'opmerking','note':'opmerking','opmerkingen':'opmerking','comment':'opmerking'};
+const DEMO_ROWS=[{'Artikelnummer':'RIC-PJ-7550','Productnaam':'Ricoh PJ WXL5670 Projector','Serienummer':'SN20250118A','Aantal':2,'Zaal':'Board Room','Opmerking':''},{'Artikelnummer':'SP-ST-500','Productnaam':'Speechi Touchscreen 75"','Serienummer':'SPT202501B','Aantal':4,'Zaal':'Conference Room A','Opmerking':'Touch kalibreren'},{'Artikelnummer':'EXTRON-MXD','Productnaam':'Extron MXD 800 Matrix','Serienummer':'EX2025KK9','Aantal':1,'Zaal':'Technische ruimte','Opmerking':''},{'Artikelnummer':'CREST-AMP4','Productnaam':'Crestron Amplifier 4Ch','Serienummer':'','Aantal':3,'Zaal':'Conference Room B','Opmerking':'Serienummer ontbreekt'},{'Artikelnummer':'POLY-G7500','Productnaam':'Poly G7500 Video Codec','Serienummer':'PG25001XC','Aantal':6,'Zaal':'Alle zalen','Opmerking':''},{'Artikelnummer':'','Productnaam':'QSC Core 110f DSP','Serienummer':'QSC2025A1','Aantal':0,'Zaal':'Technische ruimte','Opmerking':'Art.nr & aantal ontbreken'}];
+let importState={step:1,rawHeaders:[],rawRows:[],mapping:{},validated:[]};
+function initImport(){importState={step:1,rawHeaders:[],rawRows:[],mapping:{},validated:[]};renderImportStep();}
+function setImportStep(n){
+  importState.step=n;
+  [1,2,3].forEach(i=>{
+    const dot=document.getElementById('imp-sd'+i); const lbl=document.getElementById('imp-sl'+i);
+    if(dot){dot.className='step-dot'+(i<n?' s-done':i===n?' s-active':'');dot.textContent=i<n?'✓':i;}
+    if(lbl)lbl.className='step-lbl'+(i<n?' s-done':i===n?' s-active':'');
+  });
+  renderImportStep();
+}
+function renderImportStep(){
+  const c=document.getElementById('import-content'); if(!c) return;
+  const s=importState.step;
+  if(s===1){c.innerHTML=`<div class="drop-zone" id="drop-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)" onclick="document.getElementById('file-in').click()"><div style="font-size:40px;margin-bottom:10px">📊</div><div style="font-size:13px;font-weight:500;margin-bottom:4px">Sleep uw Excel of CSV bestand hier</div><div style="font-size:11px;color:var(--m)">of <span style="color:var(--a);text-decoration:underline">klik om te bladeren</span></div><div style="font-size:10px;color:var(--m2);margin-top:8px">.xlsx · .xls · .csv</div><input type="file" id="file-in" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFileSelect(event)"></div><div style="text-align:center;margin-top:14px"><button class="btn btn-ghost" onclick="loadDemoData()"><i class="ti ti-player-play"></i> Demo data laden</button></div>`;}
+  if(s===2){
+    const missing=IMPORT_REQ.filter(col=>!Object.values(importState.mapping).includes(col));
+    c.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div><div style="font-size:13px;font-weight:500">${importState.fileName||'bestand'}</div><div style="font-size:11px;color:var(--m)">${importState.rawRows.length} rijen · ${importState.rawHeaders.length} kolommen</div></div><button class="btn btn-ghost btn-sm" onclick="setImportStep(1)">← Terug</button></div>
+    <div class="tbl-wrap" style="margin-bottom:14px"><div style="display:grid;grid-template-columns:140px 1fr 1fr;padding:8px 14px;border-bottom:1px solid var(--b);background:var(--s2);font-size:9px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;font-weight:500"><span>Kolom in Excel</span><span>Koppelen aan</span><span>Voorbeeld</span></div>${importState.rawHeaders.map(h=>`<div class="map-row"><span style="font-family:var(--mono);font-size:11px;color:var(--t)">${h}</span><select class="map-select" onchange="importState.mapping['${h}']=this.value;renderImportStep()"><option value="">— Negeren —</option>${IMPORT_COLS.map(col=>`<option value="${col}"${importState.mapping[h]===col?' selected':''}>${IMPORT_LABELS[col]}${IMPORT_REQ.includes(col)?' *':''}</option>`).join('')}</select><span class="map-example">${String(importState.rawRows[0]?.[h]??'—').substring(0,25)}</span></div>`).join('')}</div>
+    ${missing.length?`<div class="notice notice-warn" style="margin-bottom:14px">⚠ Verplicht: <strong>${missing.map(k=>IMPORT_LABELS[k]).join(', ')}</strong></div>`:''}
+    <div style="display:flex;justify-content:space-between"><button class="btn btn-ghost" onclick="setImportStep(1)">← Terug</button><button class="btn btn-primary" onclick="doValidate()" ${missing.length?'disabled':''}>Valideren (${importState.rawRows.length} rijen)</button></div>`;
+  }
+  if(s===3){
+    const valid=importState.validated.filter(r=>Object.keys(r._e).length===0);
+    const errCount=importState.validated.length-valid.length;
+    const rooms=[...new Set(valid.map(r=>r.locatie).filter(Boolean))];
+    c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">${[['Totaal','var(--t)',importState.validated.length],['Geldig','var(--g)',valid.length],['Fouten',errCount?'var(--r)':'var(--g)',errCount],['Zalen','var(--a)',rooms.length]].map(([l,col,v])=>`<div class="stat-card" style="padding:12px"><div class="stat-label">${l}</div><div style="font-size:22px;font-weight:600;color:${col}">${v}</div></div>`).join('')}</div>
+    <div class="tbl-wrap" style="margin-bottom:12px"><div class="tbl-scroll"><table class="tbl"><thead><tr><th>#</th><th>Artikelnummer</th><th>Productnaam</th><th>Serienummer</th><th>Aantal</th><th>Locatie</th><th></th></tr></thead><tbody>${importState.validated.map((row,ri)=>{const hasErr=Object.keys(row._e).length>0;return `<tr${hasErr?' class="err-row"':''}><td style="color:var(--m);font-family:var(--mono)">${ri+1}</td><td>${row.artikelnummer||'—'}</td><td>${row.productnaam||'—'}</td><td style="font-family:var(--mono);font-size:10px;color:var(--m)">${row.serienummer||'—'}</td><td style="text-align:center">${row.aantal||0}</td><td>${row.locatie?`<span style="background:var(--a3);color:var(--a);padding:1px 6px;border-radius:4px;font-size:10px">${row.locatie}</span>`:''}</td><td><button style="background:none;border:none;cursor:pointer;color:var(--m);font-size:12px" onclick="deleteImportRow(${ri})">✕</button></td></tr>`;}).join('')}</tbody></table></div></div>
+    <div style="display:flex;justify-content:space-between"><button class="btn btn-ghost" onclick="setImportStep(2)">← Terug</button><button class="btn btn-success" onclick="finalImport()" ${errCount>0||valid.length===0?'disabled':''}>✓ Importeer ${valid.length} toestellen naar Supabase</button></div>`;
+  }
+}
+function handleDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('drag');const file=e.dataTransfer.files[0];if(file)parseImportFile(file);}
+function handleFileSelect(e){if(e.target.files[0])parseImportFile(e.target.files[0]);}
+function parseImportFile(file){
+  importState.fileName=file.name;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const data=new Uint8Array(ev.target.result);
+    const wb=XLSX.read(data,{type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const json=XLSX.utils.sheet_to_json(ws,{defval:''});
+    if(!json.length) return;
+    importState.rawRows=json; importState.rawHeaders=Object.keys(json[0]); importState.mapping={};
+    importState.rawHeaders.forEach(h=>{const k=h.toLowerCase().trim().replace(/[\s_\-]+/g,' ');importState.mapping[h]=IMPORT_ALIASES[k]||'';});
+    setImportStep(2);
+  };
+  reader.readAsArrayBuffer(file);
+}
+function loadDemoData(){importState.rawRows=DEMO_ROWS;importState.rawHeaders=Object.keys(DEMO_ROWS[0]);importState.fileName='demo-materiaallijst.xlsx';importState.mapping={};importState.rawHeaders.forEach(h=>{const k=h.toLowerCase().trim().replace(/[\s_\-]+/g,' ');importState.mapping[h]=IMPORT_ALIASES[k]||'';});setImportStep(2);}
+function doValidate(){
+  importState.validated=importState.rawRows.map((r,i)=>{
+    const get=col=>{const h=Object.entries(importState.mapping).find(([,v])=>v===col)?.[0];return h?String(r[h]??'').trim():'';};
+    const errors={};
+    const art=get('artikelnummer'),prod=get('productnaam'),aantalRaw=get('aantal');
+    if(!art) errors.artikelnummer='Verplicht';
+    if(!prod) errors.productnaam='Verplicht';
+    const n=parseInt(aantalRaw);
+    if(!aantalRaw||isNaN(n)||n<1) errors.aantal=aantalRaw?'Positief getal':'Verplicht';
+    return {artikelnummer:art,productnaam:prod,serienummer:get('serienummer'),aantal:isNaN(n)?0:n,locatie:get('locatie'),opmerking:get('opmerking'),_idx:i+1,_e:errors};
+  });
+  setImportStep(3);
+}
+function deleteImportRow(ri){importState.validated.splice(ri,1);renderImportStep();}
+async function finalImport(){
+  const valid=importState.validated.filter(r=>Object.keys(r._e).length===0);
+  const projectId=currentProject?.id||PROJECTS[0]?.id;
+  if(!projectId){toast('Selecteer eerst een project via de detail-panel');return;}
+  showLoading(`${valid.length} toestellen opslaan...`);
+  const rows=valid.map(r=>({project_id:projectId,artikelnummer:r.artikelnummer,naam:r.productnaam,serienummer:r.serienummer,aantal:r.aantal,locatie:r.locatie,opmerking:r.opmerking}));
+  const {error}=await db.from('toestellen').insert(rows);
+  hideLoading();
+  if(error){toast('Fout bij importeren: '+error.message);return;}
+  DEVICES_BY_PROJECT[projectId]=[...(DEVICES_BY_PROJECT[projectId]||[]),...rows.map(r=>({art:r.artikelnummer,name:r.naam,sn:r.serienummer,qty:r.aantal,room:r.locatie,note:r.opmerking}))];
+  toast(`✓ ${valid.length} toestellen opgeslagen in Supabase!`);
+  setTimeout(()=>showView('dashboard',document.querySelectorAll('.nav-item')[0]),1500);
+}
+function downloadTemplate(){
+  const ws=XLSX.utils.aoa_to_sheet([['Artikelnummer','Productnaam','Serienummer','Aantal','Locatie / Zaal','Opmerking'],['RIC-PJ-7550','Ricoh PJ WXL5670 Projector','SN20250118A',2,'Board Room',''],['SP-ST-500','Speechi Touchscreen 75"','SPT202501B',4,'Conference Room A','']]);
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Materiaallijst'); XLSX.writeFile(wb,'AV-Import-Template.xlsx');
+}
+
+// ════════════════
+// PDF
+// ════════════════
+let selectedPDFProject=null;
+function openPDFForProject(id){selectedPDFProject=id;showView('pdf',document.querySelectorAll('.nav-item')[3]);}
+function togglePDFPreview(){}
+function initPDF(){
+  if(!selectedPDFProject&&PROJECTS.length)selectedPDFProject=PROJECTS[0].id;
+  const c=document.getElementById('pdf-content'); const p=PROJECTS.find(pr=>pr.id===selectedPDFProject)||PROJECTS[0];
+  if(!p||!c)return;
+  c.innerHTML=`<div style="display:flex;gap:20px;align-items:flex-start"><div style="flex:1;display:flex;flex-direction:column;gap:12px"><div class="card"><div class="card-head"><div class="card-head-title">Project selecteren</div></div><div class="card-body" style="display:flex;flex-direction:column;gap:6px">${PROJECTS.map(pr=>`<div class="room-item" onclick="selectedPDFProject='${pr.id}';initPDF()" style="${selectedPDFProject===pr.id?'border-color:var(--a);background:var(--a3)':''}"><div class="room-icon" style="background:${pr.accent}22;color:${pr.accent}"><i class="ti ti-folder"></i></div><div class="room-info"><div class="room-name">${pr.id} — ${pr.client}</div><div class="room-count">${statusLabel(pr.status)} · ${(pr.rooms||[]).length} zalen</div></div></div>`).join('')}</div></div><button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px" onclick="exportPDF()"><i class="ti ti-file-type-pdf"></i> PDF Genereren & Downloaden</button></div><div style="width:280px;flex-shrink:0"><div style="font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Live voorbeeld</div><div id="pdf-preview-render"></div></div></div>`;
+  renderPDFPreview(p);
+}
+function renderPDFPreview(p){
+  const cont=document.getElementById('pdf-preview-render'); if(!cont)return;
+  const devices=DEVICES_BY_PROJECT[p.id]||[];
+  const done=CHECKLIST_ITEMS.filter(c=>c.checked).length;
+  cont.innerHTML=`<div class="pdf-a4" id="pdf-render-page"><div class="pdf-cover-header"><div class="pdf-cover-logo"><div class="pdf-cover-logo-icon"><i class="ti ti-wave-square"></i></div><div><div class="pdf-cover-logo-text">AV Install Pro</div><div class="pdf-cover-logo-sub">Field Service Report</div></div></div><div style="color:#fff;font-size:16px;font-weight:600;margin-bottom:4px">${p.title}</div><div style="color:#d1d5db;font-size:11px">${p.client}</div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:12px 20px;border-bottom:1px solid #f3f4f6"><div><div style="font-size:8px;color:#9ca3af;margin-bottom:2px">Referentie</div><div style="font-size:10px;font-weight:600;font-family:monospace">${p.id}</div></div><div><div style="font-size:8px;color:#9ca3af;margin-bottom:2px">Datum</div><div style="font-size:10px;font-weight:600">${p.date||p.datum||''}</div></div><div><div style="font-size:8px;color:#9ca3af;margin-bottom:2px">Status</div><div style="font-size:9px;background:#dcfce7;color:#166534;padding:2px 7px;border-radius:10px;display:inline-block;font-weight:600">${statusLabel(p.status)}</div></div></div><div class="pdf-section"><div class="pdf-sec-head"><div class="pdf-sec-num">1</div><div class="pdf-sec-title">Projectinformatie</div></div><div class="pdf-info-grid"><div class="pdf-info-cell"><div class="pdf-info-k">Klant</div><div class="pdf-info-v">${p.client}</div></div><div class="pdf-info-cell"><div class="pdf-info-k">Contact</div><div class="pdf-info-v">${p.contact||''}</div></div><div class="pdf-info-cell"><div class="pdf-info-k">Adres</div><div class="pdf-info-v" style="font-size:9px">${p.address||''}</div></div><div class="pdf-info-cell"><div class="pdf-info-k">Technieker(s)</div><div class="pdf-info-v">${(p.technicians||[]).join(', ')}</div></div></div></div>${devices.length?`<div class="pdf-section"><div class="pdf-sec-head"><div class="pdf-sec-num">2</div><div class="pdf-sec-title">Materialen</div></div><table class="pdf-tbl"><thead><tr><th>Art.nr</th><th>Productnaam</th><th>SN</th><th>Aant.</th><th>Locatie</th></tr></thead><tbody>${devices.map(d=>`<tr><td><span class="pdf-sn">${d.art}</span></td><td>${d.name}</td><td><span class="pdf-sn">${d.sn||'—'}</span></td><td style="text-align:center">${d.qty}</td><td><span class="pdf-room-tag">${d.room}</span></td></tr>`).join('')}</tbody></table></div>`:''}<div class="pdf-section"><div class="pdf-sec-head"><div class="pdf-sec-num">3</div><div class="pdf-sec-title">Checklist</div></div>${CHECKLIST_ITEMS.map(item=>`<div class="pdf-check-row"><div class="pdf-ci ${item.checked?'pdf-ci-ok':'pdf-ci-no'}">${item.checked?'✓':'✗'}</div><span style="flex:1;color:#374151">${item.text}</span></div>`).join('')}<div style="margin-top:8px;padding:6px 8px;background:#eff6ff;border-radius:4px;font-size:9px;color:#1e40af">${done}/${CHECKLIST_ITEMS.length} items voltooid</div></div>${(p.openpoints||[]).length?`<div class="pdf-section"><div class="pdf-sec-head"><div class="pdf-sec-num">4</div><div class="pdf-sec-title">Openstaande punten</div></div><div style="background:#fffbeb;border:0.5px solid #fde68a;border-radius:4px;padding:8px 10px">${(p.openpoints||[]).map(op=>`<div class="pdf-open-item"><span class="pdf-open-arr">→</span><span>${op}</span></div>`).join('')}</div></div>`:''}<div class="pdf-section"><div class="pdf-sec-head"><div class="pdf-sec-num">5</div><div class="pdf-sec-title">Handtekeningen</div></div><div class="pdf-sig-grid"><div><div class="pdf-sig-who">Klant</div><div class="pdf-sig-line">${sigState.sigs.klant?`<img src="${sigState.sigs.klant}" style="max-height:32px;max-width:100%">`:''}</div><div class="pdf-sig-name">${sigState.sigNames.klant||p.contact||''}</div></div><div><div class="pdf-sig-who">Technieker</div><div class="pdf-sig-line">${sigState.sigs.technieker?`<img src="${sigState.sigs.technieker}" style="max-height:32px;max-width:100%">`:''}</div><div class="pdf-sig-name">${sigState.sigNames.technieker||currentProfile?.naam||''}</div></div></div></div><div class="pdf-footer"><span>AV Install Pro · ${p.id} · Vertrouwelijk</span><span>1 / 1</span></div></div>`;
+}
+async function exportPDF(){
+  const el=document.getElementById('pdf-render-page');
+  if(!el){toast('Eerst een project selecteren');return;}
+  toast('PDF wordt gegenereerd...');
+  try{
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const canvas=await html2canvas(el,{scale:2,useCORS:true,backgroundColor:'#ffffff'});
+    const imgData=canvas.toDataURL('image/jpeg',0.95);
+    const w=pdf.internal.pageSize.getWidth(); const h=pdf.internal.pageSize.getHeight();
+    pdf.addImage(imgData,'JPEG',0,0,w,h);
+    const p=PROJECTS.find(pr=>pr.id===selectedPDFProject)||PROJECTS[0];
+    pdf.save(`AV-Rapport-${p.id}.pdf`);
+    toast('✓ PDF gedownload!');
+  }catch(e){toast('Fout bij PDF genereren: '+e.message);}
+}
+
+// ════════════════
+// SIGNATURE (met Supabase)
+// ════════════════
+let sigCanvas,sigCtx,sigWrap;
+let sigState={activeParty:'klant',sigs:{klant:null,technieker:null},sigNames:{klant:'',technieker:''},sigFuncties:{klant:'',technieker:''},paths:[],drawing:false,currentPath:[],penColor:'#1a1a2e',penThick:2};
+function openSignatureForProject(id){selectedPDFProject=id;showView('signature',document.querySelectorAll('.nav-item')[4]);}
+function initSignature(){
+  const p=PROJECTS.find(pr=>pr.id===selectedPDFProject)||PROJECTS[0];
+  if(p){document.getElementById('sig-project-name').textContent=`— ${p.title}`;sigState.sigNames.klant=sigState.sigNames.klant||p.contact||'';sigState.sigNames.technieker=sigState.sigNames.technieker||currentProfile?.naam||'';}
+  updateSigBadge();
+  const c=document.getElementById('sig-content'); if(!c)return;
+  c.innerHTML=`<div style="display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start;max-width:100%"><div class="card"><div class="card-head"><div><div class="card-head-title">Digitale handtekening</div></div><div style="display:flex;align-items:center;gap:8px"><button class="btn btn-ghost btn-sm" onclick="sigClear()"><i class="ti ti-eraser"></i> Wissen</button><button class="btn btn-success btn-sm" onclick="confirmSig()"><i class="ti ti-check"></i> Bevestigen & opslaan</button></div></div><div style="padding:16px"><div class="sig-who-tabs"><button class="sig-who-tab active" id="who-tab-klant" onclick="switchSigParty('klant')">👤 Klant</button><button class="sig-who-tab" id="who-tab-technieker" onclick="switchSigParty('technieker')">🔧 Technieker</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="field"><div class="field-label">Naam</div><input class="inp" id="sig-naam" value="${sigState.sigNames[sigState.activeParty]}"></div><div class="field"><div class="field-label">Functie</div><input class="inp" id="sig-functie" value="${sigState.sigFuncties[sigState.activeParty]}"></div></div><div class="pen-toolbar" style="margin-bottom:10px">${['#1a1a2e','#4f8ef7','#f87171','#34d399'].map(c=>`<div class="color-dot${sigState.penColor===c?' sel':''}" style="background:${c}" data-color="${c}" onclick="setSigColor(this)"></div>`).join('')}${[1,2,4].map(v=>`<button class="thick-btn${sigState.penThick===v?' active':''}" onclick="setSigThick(${v},this)">${v===1?'Fijn':v===2?'Normaal':'Dik'}</button>`).join('')}</div><div class="sig-canvas-wrap" id="sig-wrap"><canvas id="sig-canvas" class="sig-canvas" height="140"></canvas><div class="sig-placeholder" id="sig-placeholder"><i class="ti ti-pencil"></i><span>Teken hier uw handtekening</span></div></div></div></div><div><div class="card" style="margin-bottom:12px"><div class="card-head"><div class="card-head-title">Status</div></div><div class="card-body"><div style="display:flex;gap:8px;flex-direction:column"><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--b)"><span style="color:var(--m)">Klant</span><span id="m-klant" class="${sigState.sigs.klant?'meta-val-ok':''}">${sigState.sigs.klant?sigState.sigNames.klant:'Wacht...'}</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--b)"><span style="color:var(--m)">Technieker</span><span id="m-tech" class="${sigState.sigs.technieker?'meta-val-ok':''}">${sigState.sigs.technieker?sigState.sigNames.technieker:'Wacht...'}</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0"><span style="color:var(--m)">Juridisch</span><span id="m-legal">${sigState.sigs.klant&&sigState.sigs.technieker?'Juridisch geldig':'Nog niet geldig'}</span></div></div></div></div><div class="card" style="margin-bottom:12px"><div class="card-head"><div class="card-head-title">Previews</div></div><div class="card-body" style="display:flex;flex-direction:column;gap:8px"><div><div class="field-label" style="margin-bottom:4px">Klant</div><div class="sig-preview-box" id="prev-klant" style="height:50px;display:flex;align-items:center;justify-content:center;background:var(--s2)">${sigState.sigs.klant?`<img src="${sigState.sigs.klant}" style="max-height:44px">`:''}</div></div><div><div class="field-label" style="margin-bottom:4px">Technieker</div><div class="sig-preview-box" id="prev-technieker" style="height:50px;display:flex;align-items:center;justify-content:center;background:var(--s2)">${sigState.sigs.technieker?`<img src="${sigState.sigs.technieker}" style="max-height:44px">`:''}</div></div></div></div><button class="btn btn-primary" style="width:100%;justify-content:center" id="btn-goto-pdf" ${sigState.sigs.klant&&sigState.sigs.technieker?'':'disabled'} onclick="openPDFForProject(selectedPDFProject||PROJECTS[0]?.id)"><i class="ti ti-file-type-pdf"></i> Naar PDF Export</button><div id="sig-log" style="margin-top:12px;max-height:120px;overflow-y:auto"></div></div></div>`;
+  initSigCanvas();
+}
+function initSigCanvas(){
+  sigCanvas=document.getElementById('sig-canvas'); if(!sigCanvas)return;
+  sigWrap=document.getElementById('sig-wrap'); sigCtx=sigCanvas.getContext('2d');
+  sigCanvas.width=sigWrap.offsetWidth||480; sigCanvas.height=140; redrawSig();
+  sigCanvas.addEventListener('mousedown',sigStart); sigCanvas.addEventListener('mousemove',sigMove);
+  sigCanvas.addEventListener('mouseup',sigEnd); sigCanvas.addEventListener('mouseleave',sigEnd);
+  sigCanvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];sigStart({clientX:t.clientX,clientY:t.clientY});},{passive:false});
+  sigCanvas.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0];sigMove({clientX:t.clientX,clientY:t.clientY});},{passive:false});
+  sigCanvas.addEventListener('touchend',sigEnd,{passive:false});
+}
+function sigStart(e){sigState.drawing=true;const r=sigCanvas.getBoundingClientRect();sigState.currentPath=[{x:e.clientX-r.left,y:e.clientY-r.top}];document.getElementById('sig-placeholder')?.classList.add('hide');sigWrap?.classList.add('active');}
+function sigMove(e){if(!sigState.drawing)return;const r=sigCanvas.getBoundingClientRect();sigState.currentPath.push({x:e.clientX-r.left,y:e.clientY-r.top});redrawSig();}
+function sigEnd(){if(!sigState.drawing)return;sigState.drawing=false;if(sigState.currentPath.length>1){sigState.paths.push({points:[...sigState.currentPath],color:sigState.penColor,thick:sigState.penThick});sigWrap?.classList.remove('active');sigWrap?.classList.add('has-sig');}sigState.currentPath=[];}
+function redrawSig(){
+  sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);
+  const drawPath=(pts,color,thick)=>{if(pts.length<2)return;sigCtx.beginPath();sigCtx.strokeStyle=color;sigCtx.lineWidth=thick;sigCtx.lineCap='round';sigCtx.lineJoin='round';sigCtx.moveTo(pts[0].x,pts[0].y);pts.slice(1).forEach(p=>sigCtx.lineTo(p.x,p.y));sigCtx.stroke();};
+  sigState.paths.forEach(p=>drawPath(p.points,p.color,p.thick));
+  if(sigState.currentPath.length>1)drawPath(sigState.currentPath,sigState.penColor,sigState.penThick);
+}
+function sigClear(){sigState.paths=[];sigState.currentPath=[];if(sigCtx&&sigCanvas)sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);document.getElementById('sig-placeholder')?.classList.remove('hide');sigWrap?.classList.remove('active','has-sig');}
+function setSigColor(el){document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');sigState.penColor=el.dataset.color;}
+function setSigThick(v,el){document.querySelectorAll('.thick-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');sigState.penThick=v;}
+function switchSigParty(party){
+  sigState.activeParty=party;
+  document.querySelectorAll('.sig-who-tab').forEach(t=>t.classList.remove('active'));
+  const tab=document.getElementById('who-tab-'+party); if(tab)tab.classList.add('active');
+  const naam=document.getElementById('sig-naam'); const functie=document.getElementById('sig-functie');
+  if(naam)naam.value=sigState.sigNames[party]||''; if(functie)functie.value=sigState.sigFuncties[party]||'';
+  sigClear();
+}
+async function confirmSig(){
+  if(!sigCanvas||sigState.paths.length===0){toast('Teken eerst uw handtekening');return;}
+  const naam=document.getElementById('sig-naam'); const functie=document.getElementById('sig-functie');
+  const name=naam?naam.value.trim():sigState.sigNames[sigState.activeParty];
+  const func=functie?functie.value.trim():sigState.sigFuncties[sigState.activeParty];
+  sigState.sigNames[sigState.activeParty]=name; sigState.sigFuncties[sigState.activeParty]=func;
+  sigState.sigs[sigState.activeParty]=sigCanvas.toDataURL('image/png');
+  const prevEl=document.getElementById('prev-'+sigState.activeParty);
+  if(prevEl)prevEl.innerHTML=`<img src="${sigState.sigs[sigState.activeParty]}" style="max-width:100%;max-height:50px">`;
+  const mEl=document.getElementById('m-'+(sigState.activeParty==='klant'?'klant':'tech'));
+  if(mEl){mEl.textContent=name;mEl.className='meta-val-ok';}
+  // Opslaan naar Supabase
+  const projectId=selectedPDFProject||PROJECTS[0]?.id;
+  if(projectId){
+    const {error}=await db.from('handtekeningen').insert({project_id:projectId,partij:sigState.activeParty,naam:name,functie:func,data_url:sigState.sigs[sigState.activeParty]});
+    if(error)console.warn('Handtekening opslaan fout:',error.message);
+  }
+  if(sigState.sigs.klant&&sigState.sigs.technieker){
+    document.getElementById('m-legal').textContent='Juridisch geldig'; document.getElementById('m-legal').className='meta-val-ok';
+    const pdfBtn=document.getElementById('btn-goto-pdf'); if(pdfBtn)pdfBtn.disabled=false;
+    updateSigBadge(); toast('✓ Beide handtekeningen opgeslagen in Supabase!');
+  } else {
+    const other=sigState.activeParty==='klant'?'technieker':'klant';
+    updateSigBadge(); toast(`Handtekening van ${name} opgeslagen ✓`); switchSigParty(other);
+  }
+}
+function updateSigBadge(){
+  const badge=document.getElementById('sig-status-badge'); if(!badge)return;
+  if(sigState.sigs.klant&&sigState.sigs.technieker){badge.className='badge badge-done';badge.textContent='Beide ondertekend ✓';}
+  else if(sigState.sigs.klant||sigState.sigs.technieker){badge.className='badge badge-active';badge.textContent='Gedeeltelijk ondertekend';}
+  else{badge.className='badge badge-draft';badge.textContent='Wacht op handtekening';}
+}
+
+
+// ════════════════════════════════════════
+// MOBILE NAVIGATION & SIDEBAR
+// ════════════════════════════════════════
+function openSidebar() {
+  document.querySelector('.sidebar').classList.add('open');
+  document.getElementById('sidebar-backdrop').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+// Override showView to also close sidebar and sync bottom nav on mobile
+// showView mobile sync - no override needed, handled in original
+
+function setBottomNav(activeId) {
+  document.querySelectorAll('.bottom-nav-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById(activeId);
+  if(el) el.classList.add('active');
+}
+
+// Mobile search toggle (simple expand/collapse)
+let mobileSearchOpen = false;
+function toggleMobileSearch() {
+  mobileSearchOpen = !mobileSearchOpen;
+  const topbar = document.querySelector('#view-dashboard .topbar, #view-projects .topbar');
+  // Show/hide a floating search bar below topbar
+  let bar = document.getElementById('mobile-search-bar');
+  if(!bar) {
+    bar = document.createElement('div');
+    bar.id = 'mobile-search-bar';
+    bar.style.cssText = 'padding:8px 16px;border-bottom:1px solid var(--b);background:var(--s);display:none';
+    bar.innerHTML = '<div style="display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:8px 12px"><i class="ti ti-search" style="color:var(--m);font-size:14px"></i><input id="mobile-search-input" style="background:none;border:none;outline:none;color:var(--t);font-size:13px;font-family:var(--font);width:100%" placeholder="Zoek project, klant, ref..."><button onclick="toggleMobileSearch()" style="background:none;border:none;cursor:pointer;color:var(--m);padding:0"><i class="ti ti-x" style="font-size:14px"></i></button></div>';
+    // Insert after first topbar in main
+    const firstView = document.querySelector('.view-wrap');
+    if(firstView) firstView.insertBefore(bar, firstView.children[1]);
+  }
+  bar.style.display = mobileSearchOpen ? 'block' : 'none';
+  if(mobileSearchOpen) document.getElementById('mobile-search-input')?.focus();
+}
+
+// Update badge in bottom nav when projects update
+// bottom nav badge update handled inside updateDashboardStats directly
+
+// Swipe to close sidebar on mobile
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if(dx < -60 && document.querySelector('.sidebar.open')) closeSidebar();
+}, {passive:true});
+
+// Close sidebar nav items also close on mobile
+document.querySelectorAll('.nav-item').forEach(item => {
+  const orig = item.onclick;
+  item.addEventListener('click', () => {
+    if(window.innerWidth <= 768) closeSidebar();
+  });
+});
+
+// ════════════════
+// INIT
+// ════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  initAuth();
+  // Logout button on dots icon
+  // logout handled via onclick on button directly
+  // Sync dot in sidebar
+  const sbUser=document.querySelector('.sb-user');
+  if(sbUser){
+    sbUser.style.position='relative';
+    const dot=document.createElement('div');
+    dot.id='sync-dot'; dot.className='sync-dot syncing'; dot.title='Verbinding controleren...';
+    dot.style.cssText='position:absolute;top:8px;right:8px;cursor:help';
+    sbUser.appendChild(dot);
+  }
+  document.getElementById('login-email')?.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-pass')?.focus();});
+  document.getElementById('login-pass')?.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+});
+
+
+</script>
+</body>
+</html>
