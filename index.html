@@ -2952,16 +2952,24 @@ async function doLogout() {
 async function initAuth() {
   console.log('initAuth aangeroepen');
 
-  // Altijd polling starten — ongeacht realtime status
-  // Dit zorgt voor sync ook als WebSocket verbroken is
-  setInterval(() => {
+  // Polling fallback — alleen herladen als data veranderd is
+  setInterval(async () => {
     if(!appInitialized || !currentUser) return;
-    loadProjecten().then(()=>{
-      renderProjectGrid('proj-grid');
-      renderProjectGrid('proj-grid2');
-      updateDashboardStats();
-    });
-  }, 15000); // elke 15 seconden
+    try {
+      const data = await supaFetch('projecten', {order:'created_at.desc'});
+      if(!data) return;
+      const oudAantal = PROJECTS.length;
+      const nieuwAantal = data.length;
+      const oudIds = PROJECTS.map(p=>p.id+p.status+p.progress).join(',');
+      const nieuwIds = data.map(p=>p.id+p.status+p.progress).join(',');
+      if(oudIds !== nieuwIds) {
+        PROJECTS = data.map(p=>({...p, date:p.datum, rooms:p.rooms||[], openpoints:p.openpoints||[], technicians:p.technicians||[], accent:p.accent||'var(--a)'}));
+        renderProjectGrid('proj-grid');
+        renderProjectGrid('proj-grid2');
+        updateDashboardStats();
+      }
+    } catch(e) {}
+  }, 15000);
 
   db.auth.onAuthStateChange(async (event, session) => {
     console.log('Auth state change:', event, !!session);
@@ -3158,9 +3166,22 @@ function initRealtimeSync() {
       });
   } catch(e) { console.warn('Realtime interventies fout:', e); }
 
-  // Polling fallback elke 30 seconden
-  setInterval(() => {
-    loadProjecten().then(()=>{ renderProjectGrid('proj-grid'); renderProjectGrid('proj-grid2'); updateDashboardStats(); });
+  // Polling fallback elke 30 seconden — alleen renderen bij wijziging
+  setInterval(async () => {
+    if(!appInitialized || !currentUser) return;
+    try {
+      const data = await supaFetch('projecten', {order:'created_at.desc'});
+      if(!data) return;
+      const oudIds = PROJECTS.map(p=>p.id+p.status+p.progress).join(',');
+      const nieuwIds = data.map(p=>p.id+p.status+p.progress).join(',');
+      if(oudIds !== nieuwIds) {
+        PROJECTS = data.map(p=>({...p, date:p.datum, rooms:p.rooms||[], openpoints:p.openpoints||[], technicians:p.technicians||[], accent:p.accent||'var(--a)'}));
+        renderProjectGrid('proj-grid');
+        renderProjectGrid('proj-grid2');
+        updateDashboardStats();
+        setSyncDot('ok');
+      }
+    } catch(e) {}
     if(typeof loadInterventies === 'function') loadInterventies().then(()=>{ if(typeof renderInterventies==='function') renderInterventies(); if(typeof updateInterventiesBadge==='function') updateInterventiesBadge(); });
   }, 30000);
 }
